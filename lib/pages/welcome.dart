@@ -133,7 +133,7 @@ class _FeatureCard extends StatelessWidget {
             // Icone avec accent cyan
             Container(
               decoration: BoxDecoration(
-                color: const Color(0xFFE0F7FA), // bleu très clair en fond de l'icône
+                color: Colors.transparent, // bleu très clair en fond de l'icône
                 borderRadius: BorderRadius.circular(12),
               ),
               padding: const EdgeInsets.all(12),

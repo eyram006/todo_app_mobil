@@ -266,8 +266,6 @@ class _RegisterPageState extends State<RegisterPage> {
                     builder: (state) {
                       return InputDecorator(
                         decoration: InputDecoration(
-                          labelText: 'Pays',
-                          prefixIcon: const Icon(Icons.flag_outlined, color: primaryBlue),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(14),
                             borderSide: BorderSide.none,
