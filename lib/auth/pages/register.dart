@@ -1,19 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart'; // Pour les input formatters
-import 'package:flutter_svg/flutter_svg.dart'; // Si tu veux utiliser des SVGs
+import 'package:flutter_svg/flutter_svg.dart'; 
 import 'package:country_code_picker/country_code_picker.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'login.dart';
 
-// Réutiliser les couleurs définies dans welcome.dart si elles sont globales,
-// sinon, redéfinis-les ici ou importe-les.
-// Pour cet exemple, je vais les redéfinir pour que le code soit autonome.
 const Color primaryBlue = Color(0xFF21B6EC);
 const Color textDark = Color(0xFF161E2B);
 const Color textGrey = Color(0xFF6B7280);
-const Color lightBlueBg = Color(0xFFE0F7FA); // Inspiré de _FeatureCard
-
-
+const Color lightBlueBg = Color(0xFFE0F7FA);
 
 
 class RegisterPage extends StatefulWidget {
@@ -183,7 +178,7 @@ class _RegisterPageState extends State<RegisterPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Optionnel : Ajouter un SVG ou une image ici
+
                   Center(
                     child: SvgPicture.asset('assets/images/Logo_ToDo.svg', height: 70),
                   ),
@@ -218,6 +213,25 @@ class _RegisterPageState extends State<RegisterPage> {
                   ),
                   const SizedBox(height: 20),
 
+                  // Champ Nom d'utilisateur
+                  TextFormField(
+                    controller: _usernameController,
+                    decoration: InputDecoration(
+                      labelText: 'Nom d\'utilisateur',
+                      prefixIcon: const Icon(Icons.person_outline, color: primaryBlue),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(14),
+                        borderSide: BorderSide.none,
+                      ),
+                      filled: true,
+                      fillColor: lightBlueBg.withAlpha((0.6 * 255).toInt()),
+                      contentPadding: const EdgeInsets.symmetric(vertical: 16.0),
+                    ),
+                    validator: _validateUsername,
+                    onSaved: (value) => _usernameController.text = value ?? '',
+                  ),
+                  const SizedBox(height: 20),
+
                   // Champ Numéro de téléphone
                   TextFormField(
                     controller: _phoneController,
@@ -238,25 +252,6 @@ class _RegisterPageState extends State<RegisterPage> {
                     ),
                     validator: _validatePhone,
                     onSaved: (value) => _phoneController.text = value ?? '',
-                  ),
-                  const SizedBox(height: 20),
-
-                  // Champ Nom d'utilisateur
-                  TextFormField(
-                    controller: _usernameController,
-                    decoration: InputDecoration(
-                      labelText: 'Nom d\'utilisateur',
-                      prefixIcon: const Icon(Icons.person_outline, color: primaryBlue),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(14),
-                        borderSide: BorderSide.none,
-                      ),
-                      filled: true,
-                      fillColor: lightBlueBg.withAlpha((0.6 * 255).toInt()),
-                      contentPadding: const EdgeInsets.symmetric(vertical: 16.0),
-                    ),
-                    validator: _validateUsername,
-                    onSaved: (value) => _usernameController.text = value ?? '',
                   ),
                   const SizedBox(height: 20),
 
@@ -285,6 +280,7 @@ class _RegisterPageState extends State<RegisterPage> {
                           showCountryOnly: true,
                           showDropDownButton: true,
                           alignLeft: true,
+                          favorite: ['TG', 'FR', 'US'],
                         ),
                       );
                     },

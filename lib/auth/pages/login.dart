@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:todo_app/pages/register.dart';
+import 'package:todo_app/auth/pages/register.dart';
 
 // Même couleurs que Register
 const Color primaryBlue = Color(0xFF21B6EC);
@@ -239,7 +239,10 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                       TextButton(
                         onPressed: () {
-                          Navigator.pushNamed(context, '/register');
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => const RegisterPage()),
+                          );
                         },
                         child: const Text(
                           'Inscrivez-vous',

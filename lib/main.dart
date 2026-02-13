@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:todo_app/pages/welcome.dart';
+import 'package:todo_app/welcome.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 Future<void> main() async {
