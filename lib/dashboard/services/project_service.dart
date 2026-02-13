@@ -15,6 +15,18 @@ class ProjectService {
         .toList();
   }
 
+  Future<Project> getProject(String projectId) async {
+    // Utilise .single() pour s'attendre à un seul enregistrement
+    // Si aucun enregistrement n'est trouvé, Supabase lancera une erreur.
+    final response = await _supabase
+        .from('projects')
+        .select()
+        .eq('id', projectId)
+        .single(); // Récupère un seul objet JSON
+
+    return Project.fromJson(response);
+  }
+
   Future<void> createProject(Project project) async {
     await _supabase
         .from('projects')

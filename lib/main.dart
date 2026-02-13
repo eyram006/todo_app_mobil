@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:todo_app/welcome.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import 'dashboard/pages/dashbord_page.dart';
+
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
