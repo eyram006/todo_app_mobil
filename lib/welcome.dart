@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:todo_app/pages/register.dart';
+import 'package:todo_app/auth/pages/register.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 class Welcome extends StatefulWidget {
   const Welcome({super.key});
