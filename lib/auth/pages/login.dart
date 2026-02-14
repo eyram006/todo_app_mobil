@@ -3,6 +3,8 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:todo_app/auth/pages/register.dart';
 
+import '../../dashboard/pages/dashbord_page.dart';
+
 // Même couleurs que Register
 const Color primaryBlue = Color(0xFF21B6EC);
 const Color textDark = Color(0xFF161E2B);
@@ -62,7 +64,10 @@ class _LoginPageState extends State<LoginPage> {
         context,
       ).showSnackBar(const SnackBar(content: Text('Connexion réussie 🎉')));
 
-      Navigator.pushReplacementNamed(context, '/home');
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const DashboardPage()),
+      );
     } on AuthException catch (e) {
       ScaffoldMessenger.of(
         context,
