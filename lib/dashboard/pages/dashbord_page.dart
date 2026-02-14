@@ -105,8 +105,8 @@ class _DashboardPageState extends State<DashboardPage> {
             // Si vous voulez une couleur spécifique ici, éditez le fichier SVG ou réactivez colorFilter.
             SvgPicture.asset(
               'assets/images/Logo_ToDo.svg', // Assurez-vous que ce chemin est correct
-              height: 28,
-              width: 28,
+              height: 40,
+              width: 40,
               // colorFilter: const ColorFilter.mode(primaryBlue, BlendMode.srcIn), // Remplacé/désactivé
             ),
             const SizedBox(width: 8),
@@ -269,15 +269,6 @@ class _DashboardPageState extends State<DashboardPage> {
                   // colorFilter: const ColorFilter.mode(primaryBlue, BlendMode.srcIn), // Remplacé/désactivé
                 ),
                 const SizedBox(width: 12),
-                Text(
-                  "TODO", // Nom de l'application
-                  style: TextStyle(
-                    color: textDark,
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    letterSpacing: -0.8,
-                  ),
-                ),
               ],
             ),
           ),
