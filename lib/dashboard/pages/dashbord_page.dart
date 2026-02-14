@@ -352,7 +352,7 @@ class _DashboardPageState extends State<DashboardPage> {
                   activeProjects: [
                     "Application Mobile Todo",
                     "Refonte Site Web",
-                    "Dashboard Analytics"
+                    "Dashboard Analytics",
                   ],
                 ),
               ),
@@ -379,7 +379,7 @@ class _DashboardPageState extends State<DashboardPage> {
                   activeProjects: [
                     "API Backend",
                     "Base de données",
-                    "Intégration CI/CD"
+                    "Intégration CI/CD",
                   ],
                 ),
               ),
@@ -406,7 +406,7 @@ class _DashboardPageState extends State<DashboardPage> {
                   activeProjects: [
                     "Refonte Site Web",
                     "Application Mobile Todo",
-                    "Design System"
+                    "Design System",
                   ],
                 ),
               ),

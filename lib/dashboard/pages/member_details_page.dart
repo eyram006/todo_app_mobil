@@ -271,34 +271,36 @@ class MemberDetailsPage extends StatelessWidget {
                       ),
                     )
                   else
-                    ...activeProjects.map((project) => Container(
-                          margin: const EdgeInsets.only(bottom: 8),
-                          padding: const EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFF8F9FA),
-                            borderRadius: BorderRadius.circular(8),
-                            border: Border.all(color: const Color(0xFFE9ECEF)),
-                          ),
-                          child: Row(
-                            children: [
-                              Icon(
-                                Icons.folder_outlined,
-                                size: 20,
-                                color: const Color(0xFF007BFF),
-                              ),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: Text(
-                                  project,
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    color: const Color(0xFF2C3E50),
-                                  ),
+                    ...activeProjects.map(
+                      (project) => Container(
+                        margin: const EdgeInsets.only(bottom: 8),
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFF8F9FA),
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: const Color(0xFFE9ECEF)),
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.folder_outlined,
+                              size: 20,
+                              color: const Color(0xFF007BFF),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Text(
+                                project,
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  color: const Color(0xFF2C3E50),
                                 ),
                               ),
-                            ],
-                          ),
-                        )),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
                 ],
               ),
             ),
@@ -346,7 +348,9 @@ class MemberDetailsPage extends StatelessWidget {
                         // TODO: Implémenter l'appel
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
-                            content: Text('Fonction d\'appel bientôt disponible'),
+                            content: Text(
+                              'Fonction d\'appel bientôt disponible',
+                            ),
                           ),
                         );
                       },
@@ -408,10 +412,7 @@ class MemberDetailsPage extends StatelessWidget {
           const SizedBox(height: 4),
           Text(
             title,
-            style: TextStyle(
-              fontSize: 12,
-              color: const Color(0xFF6C757D),
-            ),
+            style: TextStyle(fontSize: 12, color: const Color(0xFF6C757D)),
             textAlign: TextAlign.center,
           ),
         ],
@@ -442,10 +443,7 @@ class MemberDetailsPage extends StatelessWidget {
             children: [
               Text(
                 label,
-                style: TextStyle(
-                  fontSize: 12,
-                  color: const Color(0xFF6C757D),
-                ),
+                style: TextStyle(fontSize: 12, color: const Color(0xFF6C757D)),
               ),
               const SizedBox(height: 2),
               Text(
@@ -634,8 +632,12 @@ class _ConversationPageState extends State<ConversationPage> {
         decoration: BoxDecoration(
           color: isMe ? const Color(0xFF007BFF) : Colors.white,
           borderRadius: BorderRadius.only(
-            topLeft: isMe ? const Radius.circular(16) : const Radius.circular(4),
-            topRight: isMe ? const Radius.circular(4) : const Radius.circular(16),
+            topLeft: isMe
+                ? const Radius.circular(16)
+                : const Radius.circular(4),
+            topRight: isMe
+                ? const Radius.circular(4)
+                : const Radius.circular(16),
             bottomLeft: const Radius.circular(16),
             bottomRight: const Radius.circular(16),
           ),
@@ -661,7 +663,9 @@ class _ConversationPageState extends State<ConversationPage> {
             Text(
               time,
               style: TextStyle(
-                color: isMe ? Colors.white.withOpacity(0.7) : const Color(0xFF6C757D),
+                color: isMe
+                    ? Colors.white.withOpacity(0.7)
+                    : const Color(0xFF6C757D),
                 fontSize: 10,
               ),
             ),
