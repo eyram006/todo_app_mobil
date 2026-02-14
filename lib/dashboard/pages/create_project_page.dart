@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+
 import '../models/project.dart';
 import '../services/project_service.dart';
 
@@ -106,9 +107,7 @@ class _CreateProjectPageState extends State<CreateProjectPage> {
               onSurface: textDark,
             ),
             textButtonTheme: TextButtonThemeData(
-              style: TextButton.styleFrom(
-                foregroundColor: primaryBlue,
-              ),
+              style: TextButton.styleFrom(foregroundColor: primaryBlue),
             ),
           ),
           child: child!,
@@ -181,7 +180,9 @@ class _CreateProjectPageState extends State<CreateProjectPage> {
               TextFormField(
                 controller: _descriptionController,
                 maxLines: 4,
-                decoration: _inputDecoration("Décrivez l'objectif du projet..."),
+                decoration: _inputDecoration(
+                  "Décrivez l'objectif du projet...",
+                ),
               ),
 
               const SizedBox(height: 24),
@@ -194,7 +195,10 @@ class _CreateProjectPageState extends State<CreateProjectPage> {
                 decoration: _inputDecoration("Sélectionnez le statut"),
                 items: const [
                   DropdownMenuItem(value: 'to do', child: Text("À faire")),
-                  DropdownMenuItem(value: 'in progress', child: Text("En cours")),
+                  DropdownMenuItem(
+                    value: 'in progress',
+                    child: Text("En cours"),
+                  ),
                   DropdownMenuItem(value: 'done', child: Text("Terminé")),
                 ],
                 onChanged: (value) {
@@ -211,7 +215,10 @@ class _CreateProjectPageState extends State<CreateProjectPage> {
                 onTap: _pickDate,
                 borderRadius: BorderRadius.circular(12),
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 16,
+                  ),
                   decoration: BoxDecoration(
                     color: surfaceColor,
                     border: Border.all(color: Colors.grey.shade300),
@@ -219,14 +226,20 @@ class _CreateProjectPageState extends State<CreateProjectPage> {
                   ),
                   child: Row(
                     children: [
-                      const Icon(Icons.calendar_today, color: textGrey, size: 20),
+                      const Icon(
+                        Icons.calendar_today,
+                        color: textGrey,
+                        size: 20,
+                      ),
                       const SizedBox(width: 12),
                       Text(
                         _selectedDeadline == null
                             ? "Sélectionner une date"
                             : "${_selectedDeadline!.day}/${_selectedDeadline!.month}/${_selectedDeadline!.year}",
                         style: TextStyle(
-                          color: _selectedDeadline == null ? textGrey : textDark,
+                          color: _selectedDeadline == null
+                              ? textGrey
+                              : textDark,
                           fontSize: 16,
                         ),
                       ),
@@ -234,7 +247,11 @@ class _CreateProjectPageState extends State<CreateProjectPage> {
                       if (_selectedDeadline != null)
                         GestureDetector(
                           onTap: () => setState(() => _selectedDeadline = null),
-                          child: const Icon(Icons.close, color: textGrey, size: 20),
+                          child: const Icon(
+                            Icons.close,
+                            color: textGrey,
+                            size: 20,
+                          ),
                         ),
                     ],
                   ),

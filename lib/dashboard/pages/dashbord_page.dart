@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart'; // Importation nécessaire pour SvgPicture
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:todo_app/dashboard/pages/projects_page.dart';
 import 'package:todo_app/dashboard/pages/create_project_page.dart';
+import 'package:todo_app/dashboard/pages/projects_page.dart';
 
 import '../../auth/pages/login.dart'; // Assurez-vous que cette page existe
 import '../../welcome.dart'; // Import pour la page d'accueil
@@ -190,7 +190,8 @@ class _DashboardPageState extends State<DashboardPage> {
               final result = await Navigator.push(
                 context,
                 MaterialPageRoute(
-                    builder: (context) => const CreateProjectPage()),
+                  builder: (context) => const CreateProjectPage(),
+                ),
               );
               if (result == true) {
                 _loadProjects();
