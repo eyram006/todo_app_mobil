@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:todo_app/auth/pages/login.dart';
 import 'package:todo_app/auth/pages/register.dart';
@@ -71,6 +72,13 @@ class _MyAppState extends State<MyApp> {
       // Afficher un écran de chargement pendant la vérification
       return MaterialApp(
         debugShowCheckedModeBanner: false,
+        locale: const Locale('fr', 'FR'),
+        localizationsDelegates: const [
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: const [Locale('fr', 'FR'), Locale('en', 'US')],
         home: Scaffold(
           body: Center(
             child: CircularProgressIndicator(color: const Color(0xFF21B6EC)),
@@ -81,6 +89,13 @@ class _MyAppState extends State<MyApp> {
 
     return MaterialApp(
       debugShowCheckedModeBanner: false,
+      locale: const Locale('fr', 'FR'),
+      localizationsDelegates: const [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: const [Locale('fr', 'FR'), Locale('en', 'US')],
       home: _initialScreen,
       routes: {
         '/register': (context) => const RegisterPage(),

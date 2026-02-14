@@ -144,7 +144,7 @@ class _CreateProjectPageState extends State<CreateProjectPage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const Text(
-                "Détails du projet",
+                "Créer un nouveau projet",
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w600,
@@ -153,20 +153,20 @@ class _CreateProjectPageState extends State<CreateProjectPage> {
               ),
               const SizedBox(height: 8),
               const Text(
-                "Remplissez les informations ci-dessous pour créer un nouveau projet.",
+                "Remplissez les informations ci-dessous pour créer votre projet.",
                 style: TextStyle(color: textGrey, fontSize: 14),
               ),
               const SizedBox(height: 32),
 
               // Champ Nom du projet
-              _buildLabel("Nom du projet"),
+              _buildLabel("Nom du projet *"),
               const SizedBox(height: 8),
               TextFormField(
                 controller: _nameController,
-                decoration: _inputDecoration("Ex: Refonte du site web"),
+                decoration: _inputDecoration("Exemple : Refonte du site web"),
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
-                    return 'Le nom du projet est requis';
+                    return 'Le nom du projet est obligatoire';
                   }
                   return null;
                 },
@@ -175,13 +175,13 @@ class _CreateProjectPageState extends State<CreateProjectPage> {
               const SizedBox(height: 24),
 
               // Champ Description
-              _buildLabel("Description (Optionnel)"),
+              _buildLabel("Description (facultatif)"),
               const SizedBox(height: 8),
               TextFormField(
                 controller: _descriptionController,
                 maxLines: 4,
                 decoration: _inputDecoration(
-                  "Décrivez l'objectif du projet...",
+                  "Décrivez brièvement l'objectif et les détails de votre projet...",
                 ),
               ),
 
@@ -197,10 +197,12 @@ class _CreateProjectPageState extends State<CreateProjectPage> {
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: DropdownButtonFormField<String>(
-                  value: _selectedStatus,
+                  initialValue: _selectedStatus,
                   decoration: InputDecoration(
-                    hintText: "Sélectionnez le statut",
-                    hintStyle: TextStyle(color: textGrey.withOpacity(0.5)),
+                    hintText: "Choisissez le statut de départ",
+                    hintStyle: TextStyle(
+                      color: textGrey.withValues(alpha: 0.5),
+                    ),
                     contentPadding: const EdgeInsets.symmetric(
                       horizontal: 16,
                       vertical: 16,
@@ -262,7 +264,7 @@ class _CreateProjectPageState extends State<CreateProjectPage> {
               const SizedBox(height: 24),
 
               // Sélecteur de Date limite
-              _buildLabel("Date limite (Optionnel)"),
+              _buildLabel("Date limite (facultatif)"),
               const SizedBox(height: 8),
               InkWell(
                 onTap: _pickDate,
@@ -279,24 +281,27 @@ class _CreateProjectPageState extends State<CreateProjectPage> {
                   ),
                   child: Row(
                     children: [
-                      const Icon(
-                        Icons.calendar_today,
-                        color: textGrey,
+                      Icon(
+                        Icons.calendar_month_outlined,
+                        color: _selectedDeadline != null
+                            ? primaryBlue
+                            : textGrey,
                         size: 20,
                       ),
                       const SizedBox(width: 12),
-                      Text(
-                        _selectedDeadline == null
-                            ? "Sélectionner une date"
-                            : "${_selectedDeadline!.day}/${_selectedDeadline!.month}/${_selectedDeadline!.year}",
-                        style: TextStyle(
-                          color: _selectedDeadline == null
-                              ? textGrey
-                              : textDark,
-                          fontSize: 16,
+                      Expanded(
+                        child: Text(
+                          _selectedDeadline == null
+                              ? "Choisir une date limite"
+                              : "${_selectedDeadline!.day.toString().padLeft(2, '0')}/${_selectedDeadline!.month.toString().padLeft(2, '0')}/${_selectedDeadline!.year}",
+                          style: TextStyle(
+                            color: _selectedDeadline == null
+                                ? textGrey.withValues(alpha: 0.5)
+                                : textDark,
+                            fontSize: 16,
+                          ),
                         ),
                       ),
-                      const Spacer(),
                       if (_selectedDeadline != null)
                         GestureDetector(
                           onTap: () => setState(() => _selectedDeadline = null),
@@ -305,6 +310,12 @@ class _CreateProjectPageState extends State<CreateProjectPage> {
                             color: textGrey,
                             size: 20,
                           ),
+                        )
+                      else
+                        const Icon(
+                          Icons.keyboard_arrow_down,
+                          color: textGrey,
+                          size: 24,
                         ),
                     ],
                   ),
@@ -366,7 +377,7 @@ class _CreateProjectPageState extends State<CreateProjectPage> {
   InputDecoration _inputDecoration(String hint) {
     return InputDecoration(
       hintText: hint,
-      hintStyle: TextStyle(color: textGrey.withOpacity(0.5)),
+      hintStyle: TextStyle(color: textGrey.withValues(alpha: 0.5)),
       filled: true,
       fillColor: surfaceColor,
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
