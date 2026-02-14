@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:todo_app/auth/pages/register.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:todo_app/auth/pages/login.dart';
+
 class Welcome extends StatefulWidget {
   const Welcome({super.key});
   @override
@@ -13,24 +14,28 @@ class _WelcomeState extends State<Welcome> {
     return Container(
       child: Scaffold(
         backgroundColor: Colors.white,
-      body: SafeArea(
-        child : Padding(padding: const EdgeInsets.all(24),
-          child: Column(
-        children: [
-          Expanded(child: SingleChildScrollView(
+        body: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(24),
             child: Column(
-              children: const [
-                _HeaderSection(),
-                SizedBox(height: 32),
-                _FeaturesSection(),
+              children: [
+                Expanded(
+                  child: SingleChildScrollView(
+                    child: Column(
+                      children: const [
+                        _HeaderSection(),
+                        SizedBox(height: 32),
+                        _FeaturesSection(),
+                      ],
+                    ),
+                  ),
+                ),
+                _BottomAction(),
               ],
             ),
           ),
-          ),
-           _BottomAction(),
-        ],
-      ))),
-      )
+        ),
+      ),
     );
   }
 }
@@ -46,7 +51,7 @@ class _HeaderSection extends StatelessWidget {
       children: [
         SvgPicture.asset(
           'assets/images/Logo_ToDo.svg',
-          width: 157,  // largeur souhaitée
+          width: 157, // largeur souhaitée
           height: 152, // hauteur souhaitée
         ),
 
@@ -55,10 +60,7 @@ class _HeaderSection extends StatelessWidget {
         Text(
           'Boostez votre productivité avec ToDo.',
           textAlign: TextAlign.center,
-          style: TextStyle(
-            fontSize: 17,
-            color: textDark,
-          ),
+          style: TextStyle(fontSize: 17, color: textDark),
         ),
       ],
     );
@@ -85,7 +87,8 @@ class _FeaturesSection extends StatelessWidget {
           child: const _FeatureCard(
             icon: Icons.schedule,
             title: 'Deadlines & rappels',
-            description: 'Suivez l’avancement en temps réel et respectez vos échéances.',
+            description:
+                'Suivez l’avancement en temps réel et respectez vos échéances.',
           ),
         ),
         Transform.translate(
@@ -98,10 +101,8 @@ class _FeaturesSection extends StatelessWidget {
         ),
       ],
     );
-
   }
 }
-
 
 //declaration d'un feature card
 class _FeatureCard extends StatelessWidget {
@@ -121,9 +122,7 @@ class _FeatureCard extends StatelessWidget {
     return Card(
       elevation: 6, // légère profondeur
       shadowColor: const Color.fromRGBO(0, 0, 0, 0.1), // noir 10% opacity
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       color: Colors.white, // fond blanc pur pour lisibilité
       child: Padding(
         padding: const EdgeInsets.all(20),
@@ -175,7 +174,6 @@ class _FeatureCard extends StatelessWidget {
   }
 }
 
-
 class _BottomAction extends StatelessWidget {
   const _BottomAction();
 
@@ -197,12 +195,11 @@ class _BottomAction extends StatelessWidget {
           onPressed: () {
             Navigator.push(
               context,
-              MaterialPageRoute(
-                builder: (context) => RegisterPage(),
-              ),
+              MaterialPageRoute(builder: (context) => const LoginPage()),
             );
           },
-          child: const Text('Commencer',
+          child: const Text(
+            'Commencer',
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w600,
@@ -215,12 +212,9 @@ class _BottomAction extends StatelessWidget {
   }
 }
 
-
 const Color primaryBlue = Color(0xFF21B6EC);
-const Color lightBlue   = Color(0xFF5ADFF6); // fond cyan très doux
-const Color lightGreen  = Color(0xFFD1FAE5);
+const Color lightBlue = Color(0xFF5ADFF6); // fond cyan très doux
+const Color lightGreen = Color(0xFFD1FAE5);
 const Color lightPurple = Color(0xFFEDE9FE);
 const Color textDark = Color(0xFF161E2B);
 const Color textGrey = Color(0xFF6B7280);
-
-
