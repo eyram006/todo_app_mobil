@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart'; // Importation nécessaire pour SvgPicture
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:todo_app/dashboard/pages/projects_page.dart';
+import 'package:todo_app/dashboard/pages/create_project_page.dart';
 
 import '../../auth/pages/login.dart'; // Assurez-vous que cette page existe
 import '../../welcome.dart'; // Import pour la page d'accueil
@@ -185,9 +186,15 @@ class _DashboardPageState extends State<DashboardPage> {
         SizedBox(
           width: double.infinity, // Bouton prend toute la largeur disponible
           child: ElevatedButton.icon(
-            onPressed: () {
-              // TODO: Implémenter l'ouverture du formulaire de nouveau projet
-              print("Nouveau Projet cliqué!");
+            onPressed: () async {
+              final result = await Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => const CreateProjectPage()),
+              );
+              if (result == true) {
+                _loadProjects();
+              }
             },
             icon: const Icon(Icons.add, size: 18),
             label: const Text("Nouveau Projet"),
