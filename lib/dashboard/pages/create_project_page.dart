@@ -190,20 +190,73 @@ class _CreateProjectPageState extends State<CreateProjectPage> {
               // Sélecteur de Statut
               _buildLabel("Statut initial"),
               const SizedBox(height: 8),
-              DropdownButtonFormField<String>(
-                value: _selectedStatus,
-                decoration: _inputDecoration("Sélectionnez le statut"),
-                items: const [
-                  DropdownMenuItem(value: 'to do', child: Text("À faire")),
-                  DropdownMenuItem(
-                    value: 'in progress',
-                    child: Text("En cours"),
+              Container(
+                decoration: BoxDecoration(
+                  color: surfaceColor,
+                  border: Border.all(color: Colors.grey.shade300),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: DropdownButtonFormField<String>(
+                  value: _selectedStatus,
+                  decoration: InputDecoration(
+                    hintText: "Sélectionnez le statut",
+                    hintStyle: TextStyle(color: textGrey.withOpacity(0.5)),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 16,
+                    ),
+                    border: InputBorder.none,
+                    enabledBorder: InputBorder.none,
+                    focusedBorder: InputBorder.none,
                   ),
-                  DropdownMenuItem(value: 'done', child: Text("Terminé")),
-                ],
-                onChanged: (value) {
-                  if (value != null) setState(() => _selectedStatus = value);
-                },
+                  items: const [
+                    DropdownMenuItem(
+                      value: 'to do',
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.assignment_outlined,
+                            color: Color(0xFF5ADFF6),
+                            size: 20,
+                          ),
+                          SizedBox(width: 12),
+                          Text("À faire", style: TextStyle(color: textDark)),
+                        ],
+                      ),
+                    ),
+                    DropdownMenuItem(
+                      value: 'in progress',
+                      child: Row(
+                        children: [
+                          Icon(Icons.sync, color: Color(0xFFD1FAE5), size: 20),
+                          SizedBox(width: 12),
+                          Text("En cours", style: TextStyle(color: textDark)),
+                        ],
+                      ),
+                    ),
+                    DropdownMenuItem(
+                      value: 'done',
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.check_circle_outline,
+                            color: Color(0xFFEDE9FE),
+                            size: 20,
+                          ),
+                          SizedBox(width: 12),
+                          Text("Terminé", style: TextStyle(color: textDark)),
+                        ],
+                      ),
+                    ),
+                  ],
+                  onChanged: (value) {
+                    if (value != null) setState(() => _selectedStatus = value);
+                  },
+                  icon: const Icon(Icons.keyboard_arrow_down, color: textGrey),
+                  dropdownColor: surfaceColor,
+                  borderRadius: BorderRadius.circular(12),
+                  style: const TextStyle(color: textDark, fontSize: 16),
+                ),
               ),
 
               const SizedBox(height: 24),
