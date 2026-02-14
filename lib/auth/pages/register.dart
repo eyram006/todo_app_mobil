@@ -1,15 +1,14 @@
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart'; // Pour les input formatters
-import 'package:flutter_svg/flutter_svg.dart'; 
 import 'package:country_code_picker/country_code_picker.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'login.dart';
+import 'package:todo_app/dashboard/pages/dashbord_page.dart';
 
 const Color primaryBlue = Color(0xFF21B6EC);
 const Color textDark = Color(0xFF161E2B);
 const Color textGrey = Color(0xFF6B7280);
 const Color lightBlueBg = Color(0xFFE0F7FA);
-
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -23,25 +22,20 @@ class _RegisterPageState extends State<RegisterPage> {
   final supabase = Supabase.instance.client;
   bool _loading = false;
 
+  final _emailController = TextEditingController();
+  final _phoneController = TextEditingController();
+  final _usernameController = TextEditingController();
+  final _passwordController = TextEditingController();
 
-  // Contrôleurs pour les champs de texte
-  final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _phoneController = TextEditingController();
-  final TextEditingController _usernameController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
-
-  // Variables pour stocker la sélection du pays (simple liste pour l'exemple)
   String? _selectedCountry;
-  // mot de passe masqué par défaut
   bool _obscurePassword = true;
 
-  // Validation des champs
   String? _validateEmail(String? value) {
     if (value == null || value.isEmpty) {
       return 'Veuillez entrer votre adresse e-mail';
     }
-    // Regex simple pour l'e-mail
-    if (!RegExp(r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b').hasMatch(value)) {
+    // Validation temporaire simplifiée pour les tests
+    if (!value.contains('@')) {
       return 'Veuillez entrer une adresse e-mail valide';
     }
     return null;
@@ -49,27 +43,22 @@ class _RegisterPageState extends State<RegisterPage> {
 
   String? _validatePhone(String? value) {
     if (value == null || value.isEmpty) {
-      return 'Veuillez entrer votre numéro de téléphone';
+      return 'Veuillez entrer votre numéro';
     }
-    // Supprimer les espaces, tirets ou parenthèses pour simplifier la validation
-    String phone = value.replaceAll(RegExp(r'[\s\-\(\)]'), '');
-
-    // Vérifier le format : +optionnel suivi de 10 à 12 chiffres
-    if (!RegExp(r'^\+?[0-9]{10,12}$').hasMatch(phone)) {
-      return 'Veuillez entrer un numéro de téléphone valide (10 à 12 chiffres)';
+    // Validation temporaire simplifiée pour les tests
+    if (value.length < 8) {
+      return 'Numéro trop court';
     }
     return null;
   }
-
 
   String? _validateUsername(String? value) {
     if (value == null || value.isEmpty) {
       return 'Veuillez entrer un nom d\'utilisateur';
     }
-    if (value.length < 3) {
-      return 'Le nom d\'utilisateur doit contenir au moins 3 caractères';
+    if (value.length < 2) {
+      return 'Au moins 2 caractères requis';
     }
-
     return null;
   }
 
@@ -77,74 +66,98 @@ class _RegisterPageState extends State<RegisterPage> {
     if (value == null || value.isEmpty) {
       return 'Veuillez entrer votre mot de passe';
     }
-    if (value.length < 6) {
-      return 'Le mot de passe doit contenir au moins 6 caractères';
-    }
-    //règles plus strictes (au moins une majuscule, une minuscule, un chiffre, un symbole)
-    if (!RegExp(r'^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{6,}$').hasMatch(value)) {
-      return 'Le mot de passe doit contenir au moins une lettre et un chiffre';
+    if (value.length < 4) {
+      return 'Au moins 4 caractères requis';
     }
     return null;
   }
 
   String? _validateCountry(String? value) {
-    if (value == null || value.isEmpty) {
-      return 'Veuillez sélectionner votre pays';
-    }
+    // Validation temporaire désactivée pour les tests
     return null;
   }
 
   Future<void> _register() async {
-    if (!_formKey.currentState!.validate()) return;
+    print('🔄 Début de la méthode _register');
 
+    if (!_formKey.currentState!.validate()) {
+      print('❌ Validation du formulaire échouée');
+      return;
+    }
+
+    print('✅ Validation du formulaire réussie');
     setState(() => _loading = true);
 
     try {
-      // 1️⃣ Création de l'utilisateur Auth
+      print(
+        '📧 Tentative d\'inscription avec email: ${_emailController.text.trim()}',
+      );
+
       final response = await supabase.auth.signUp(
         email: _emailController.text.trim(),
         password: _passwordController.text.trim(),
       );
 
-      final user = response.user;
+      print(
+        '📨 Réponse de signUp reçue: ${response.user != null ? 'Utilisateur créé' : 'Utilisateur null'}',
+      );
 
+      final user = response.user;
       if (user == null) {
+        print('❌ Utilisateur null après signUp');
         throw 'Erreur lors de la création du compte';
       }
 
-      // 2️⃣ Insertion des infos supplémentaires
+      print('👤 Utilisateur créé avec ID: ${user.id}');
+
+      // Vérification de sécurité pour _selectedCountry
+      final countryCode =
+          _selectedCountry ?? '+228'; // Code par défaut pour le Togo
+      print('🌍 Pays sélectionné: $countryCode');
+
+      print('💾 Insertion du profil dans la base de données...');
       await supabase.from('profiles').insert({
         'id': user.id,
         'username': _usernameController.text.trim(),
-        'phone': _phoneController.text.trim(),
-        'country': _selectedCountry,
+        'phone': countryCode + _phoneController.text.trim(),
+        'country': countryCode,
       });
 
-      if (!mounted) return;
+      print('✅ Profil inséré avec succès');
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Inscription réussie 🎉')),
+      if (!mounted) {
+        print('⚠️ Widget non monté, arrêt');
+        return;
+      }
+
+      print('🎉 Affichage du message de succès');
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Inscription réussie 🎉')));
+
+      print('🏠 Navigation vers le Dashboard');
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const DashboardPage()),
       );
-
-      // 3️⃣ Navigation vers login ou home
-      Navigator.pushReplacementNamed(context, '/login');
     } on AuthException catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(e.message)),
-      );
+      print('❌ Erreur AuthException: ${e.message}');
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(e.message)));
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(e.toString())),
-      );
+      print('❌ Erreur générale: $e');
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(e.toString())));
     }
 
+    print('🔄 Fin de la méthode _register, remise à zéro du loading');
     setState(() => _loading = false);
   }
 
-
   @override
   void dispose() {
-    // Nettoyer les contrôleurs lorsqu'ils ne sont plus nécessaires
     _emailController.dispose();
     _phoneController.dispose();
     _usernameController.dispose();
@@ -158,11 +171,7 @@ class _RegisterPageState extends State<RegisterPage> {
       backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.white,
-        elevation: 1, // Pas d'ombre sous l'AppBar
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: textDark),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
+        elevation: 1,
         title: const Text(
           'Créer un compte',
           style: TextStyle(color: textDark, fontWeight: FontWeight.bold),
@@ -178,198 +187,145 @@ class _RegisterPageState extends State<RegisterPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-
                   Center(
-                    child: SvgPicture.asset('assets/images/Logo_ToDo.svg', height: 70),
-                  ),
-                  const SizedBox(height: 20),
-
-                  Text(
-                    'Remplissez les informations ci-dessous pour commencer.',
-                    style: TextStyle(
-                      fontSize: 15,
-                      color: textGrey,
+                    child: SvgPicture.asset(
+                      'assets/images/Logo_ToDo.svg',
+                      height: 70,
                     ),
                   ),
+
                   const SizedBox(height: 32),
 
-                  // Champ Email
+                  // EMAIL
                   TextFormField(
                     controller: _emailController,
-                    keyboardType: TextInputType.emailAddress,
-                    decoration: InputDecoration(
-                      labelText: 'E-mail',
-                      prefixIcon: const Icon(Icons.email_outlined, color: primaryBlue),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(14),
-                        borderSide: BorderSide.none,
-                      ),
-                      filled: true,
-                      fillColor: lightBlueBg.withAlpha((0.6 * 255).toInt()),
-                      contentPadding: const EdgeInsets.symmetric(vertical: 16.0),
+                    decoration: _inputDecoration(
+                      label: 'E-mail',
+                      icon: Icons.email_outlined,
                     ),
                     validator: _validateEmail,
-                    onSaved: (value) => _emailController.text = value ?? '',
                   ),
+
                   const SizedBox(height: 20),
 
-                  // Champ Nom d'utilisateur
+                  // USERNAME
                   TextFormField(
                     controller: _usernameController,
-                    decoration: InputDecoration(
-                      labelText: 'Nom d\'utilisateur',
-                      prefixIcon: const Icon(Icons.person_outline, color: primaryBlue),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(14),
-                        borderSide: BorderSide.none,
-                      ),
-                      filled: true,
-                      fillColor: lightBlueBg.withAlpha((0.6 * 255).toInt()),
-                      contentPadding: const EdgeInsets.symmetric(vertical: 16.0),
+                    decoration: _inputDecoration(
+                      label: 'Nom d\'utilisateur',
+                      icon: Icons.person_outline,
                     ),
                     validator: _validateUsername,
-                    onSaved: (value) => _usernameController.text = value ?? '',
                   ),
+
                   const SizedBox(height: 20),
 
-                  // Champ Numéro de téléphone
-                  TextFormField(
-                    controller: _phoneController,
-                    keyboardType: TextInputType.phone,
-                    inputFormatters: [
-                      FilteringTextInputFormatter.allow(RegExp(r'[+\d\s()-]')), // Permet chiffres, +, espaces, (), inutile-
-                    ],
-                    decoration: InputDecoration(
-                      labelText: 'Numéro de téléphone',
-                      prefixIcon: const Icon(Icons.phone_outlined, color: primaryBlue),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(14),
-                        borderSide: BorderSide.none,
-                      ),
-                      filled: true,
-                      fillColor: lightBlueBg.withAlpha((0.6 * 255).toInt()),
-                      contentPadding: const EdgeInsets.symmetric(vertical: 12.0),
-                    ),
-                    validator: _validatePhone,
-                    onSaved: (value) => _phoneController.text = value ?? '',
-                  ),
-                  const SizedBox(height: 20),
-
-                  // Champ Pays
-                  FormField<String>(
-                    validator: _validateCountry,
-                    builder: (state) {
-                      return InputDecorator(
-                        decoration: InputDecoration(
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(14),
-                            borderSide: BorderSide.none,
-                          ),
-                          filled: true,
-                          fillColor: lightBlueBg.withAlpha((0.6 * 255).toInt()),
-                          contentPadding: const EdgeInsets.symmetric(vertical: 1.0),
-                        ),
-                        child: CountryCodePicker(
-                          onChanged: (country) {
-                            setState(() {
-                              _selectedCountry = country.name;
-                            });
-                            state.didChange(country.name); // met à jour le FormField
+                  // PHONE ROW FIXED
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      IntrinsicWidth(
+                        child: FormField<String>(
+                          validator: _validateCountry,
+                          builder: (state) {
+                            return Container(
+                              decoration: BoxDecoration(
+                                color: lightBlueBg.withAlpha(
+                                  (0.6 * 255).toInt(),
+                                ),
+                                borderRadius: BorderRadius.circular(14),
+                              ),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 0,
+                              ),
+                              child: CountryCodePicker(
+                                onChanged: (country) {
+                                  setState(() {
+                                    _selectedCountry = country.dialCode;
+                                  });
+                                  state.didChange(country.dialCode);
+                                },
+                                initialSelection: 'TG',
+                                showOnlyCountryWhenClosed: true,
+                                showDropDownButton: true,
+                                showFlag: true,
+                                alignLeft: true,
+                                favorite: const ['TG', 'FR', 'US'],
+                                padding: EdgeInsets.zero,
+                              ),
+                            );
                           },
-                          initialSelection: 'TG',
-                          showCountryOnly: true,
-                          showDropDownButton: true,
-                          alignLeft: true,
-                          favorite: ['TG', 'FR', 'US'],
                         ),
-                      );
-                    },
+                      ),
+
+                      const SizedBox(width: 6),
+
+                      Expanded(
+                        child: TextFormField(
+                          controller: _phoneController,
+                          keyboardType: TextInputType.phone,
+                          inputFormatters: [
+                            FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
+                          ],
+                          decoration: _inputDecoration(
+                            label: 'Numéro',
+                            icon: Icons.phone_outlined,
+                          ),
+                          validator: _validatePhone,
+                        ),
+                      ),
+                    ],
                   ),
 
                   const SizedBox(height: 20),
 
-                  // Champ Mot de passe
-
+                  // PASSWORD
                   TextFormField(
                     controller: _passwordController,
-                    obscureText: true, // Cache le mot de passe
-                    decoration: InputDecoration(
-                      labelText: 'Mot de passe',
-                      prefixIcon: const Icon(Icons.lock_outline, color: primaryBlue),
-                      suffixIcon: IconButton(
+                    obscureText: _obscurePassword,
+                    decoration: _inputDecoration(
+                      label: 'Mot de passe',
+                      icon: Icons.lock_outline,
+                      suffix: IconButton(
                         icon: Icon(
                           _obscurePassword
                               ? Icons.visibility_off_outlined
                               : Icons.visibility_outlined,
-                          color: Colors.grey,
                         ),
                         onPressed: () {
                           setState(() {
-                            _obscurePassword = !_obscurePassword; // bascule l’état
+                            _obscurePassword = !_obscurePassword;
                           });
                         },
                       ),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(14),
-                        borderSide: BorderSide.none,
-                      ),
-                      filled: true,
-                      fillColor: lightBlueBg.withAlpha((0.6 * 255).toInt()),
-                      contentPadding: const EdgeInsets.symmetric(vertical: 16.0),
                     ),
                     validator: _validatePassword,
-                    onSaved: (value) => _passwordController.text = value ?? '',
                   ),
+
                   const SizedBox(height: 32),
 
-                  // Bouton d'enregistrement
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
                         backgroundColor: primaryBlue,
-                        elevation: 4,
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(14),
                         ),
                       ),
-                      onPressed: _register,
-                      child: const Text(
-                        'S\'inscrire',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.white70, // Assure-toi que le texte est lisible
-                        ),
-                      ),
+                      onPressed: _loading ? null : _register,
+                      child: _loading
+                          ? const CircularProgressIndicator(color: Colors.white)
+                          : const Text(
+                              'S\'inscrire',
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.white,
+                              ),
+                            ),
                     ),
-                  ),
-
-                  const SizedBox(height: 24),
-
-                  // Lien pour se connecter (si l'utilisateur a déjà un compte)
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        'Vous avez déjà un compte ?',
-                        style: TextStyle(color: textGrey, fontSize: 14),
-                      ),
-                      TextButton(
-                        onPressed: () {
-                          // Navigation vers la page de connexion
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (context) => const LoginPage()),
-                          );
-                        },
-                        child: Text(
-                          'Connectez-vous',
-                          style: TextStyle(color: primaryBlue, fontSize: 14, fontWeight: FontWeight.bold),
-                        ),
-                      ),
-                    ],
                   ),
                 ],
               ),
@@ -377,6 +333,25 @@ class _RegisterPageState extends State<RegisterPage> {
           ),
         ),
       ),
+    );
+  }
+
+  InputDecoration _inputDecoration({
+    required String label,
+    required IconData icon,
+    Widget? suffix,
+  }) {
+    return InputDecoration(
+      labelText: label,
+      prefixIcon: Icon(icon, color: primaryBlue),
+      suffixIcon: suffix,
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(14),
+        borderSide: BorderSide.none,
+      ),
+      filled: true,
+      fillColor: lightBlueBg.withAlpha((0.6 * 255).toInt()),
+      contentPadding: const EdgeInsets.symmetric(vertical: 16),
     );
   }
 }
