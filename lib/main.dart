@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:todo_app/auth/pages/login.dart';
 import 'package:todo_app/auth/pages/register.dart';
 import 'package:todo_app/welcome.dart';
 
@@ -16,16 +17,77 @@ Future<void> main() async {
   runApp(const MyApp());
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  bool _isLoading = true;
+  Widget? _initialScreen;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkAuthState();
+  }
+
+  Future<void> _checkAuthState() async {
+    try {
+      // Attendre un peu pour que Supabase initialise complètement
+      await Future.delayed(const Duration(milliseconds: 100));
+
+      final session = Supabase.instance.client.auth.currentSession;
+      final user = Supabase.instance.client.auth.currentUser;
+
+      if (session != null && user != null) {
+        // L'utilisateur est connecté, aller au dashboard
+        setState(() {
+          _initialScreen = const DashboardPage();
+          _isLoading = false;
+        });
+      } else {
+        // L'utilisateur n'est pas connecté, aller à la page d'accueil
+        setState(() {
+          _initialScreen = Welcome();
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      print('Erreur lors de la vérification de l\'authentification: $e');
+      // En cas d'erreur, aller à la page d'accueil
+      setState(() {
+        _initialScreen = Welcome();
+        _isLoading = false;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    if (_isLoading) {
+      // Afficher un écran de chargement pendant la vérification
+      return MaterialApp(
+        debugShowCheckedModeBanner: false,
+        home: Scaffold(
+          body: Center(
+            child: CircularProgressIndicator(color: const Color(0xFF21B6EC)),
+          ),
+        ),
+      );
+    }
+
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: Welcome(),
-      routes: {'/register': (context) => const RegisterPage()},
+      home: _initialScreen,
+      routes: {
+        '/register': (context) => const RegisterPage(),
+        '/login': (context) => const LoginPage(),
+        '/dashboard': (context) => const DashboardPage(),
+        '/welcome': (context) => Welcome(),
+      },
     );
   }
 }

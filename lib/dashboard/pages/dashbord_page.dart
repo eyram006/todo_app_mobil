@@ -1,22 +1,28 @@
 import 'package:flutter/material.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter_svg/flutter_svg.dart'; // Importation nécessaire pour SvgPicture
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:todo_app/dashboard/pages/projects_page.dart';
 
 import '../../auth/pages/login.dart'; // Assurez-vous que cette page existe
+import '../../welcome.dart'; // Import pour la page d'accueil
 import '../models/project.dart';
 import '../services/project_service.dart';
+import 'member_details_page.dart'; // Import de la page des détails du membre
 
 // --- Palette de couleurs "TODO" ---
 const Color primaryBlue = Color(0xFF21B6EC); // Bleu Cyan Dynamique
-const Color lightBlue = Color(0xFF5ADFF6);   // Aqua Pâle (To Do)
-const Color lightGreen = Color(0xFFD1FAE5);  // Vert Menthe Clair (In Progress)
+const Color lightBlue = Color(0xFF5ADFF6); // Aqua Pâle (To Do)
+const Color lightGreen = Color(0xFFD1FAE5); // Vert Menthe Clair (In Progress)
 const Color lightPurple = Color(0xFFEDE9FE); // Lavande Douce (Done)
 
-const Color backgroundColor = Color(0xFFF9FAFB); // Gris Très Clair (Fond principal)
-const Color surfaceColor = Color(0xFFFFFFFF);    // Blanc Pur (Cartes, surfaces)
-const Color textDark = Color(0xFF161E2B);      // Gris Anthracite Profond (Texte principal)
-const Color textGrey = Color(0xFF6B7280);      // Gris Moyen (Texte secondaire)
+const Color backgroundColor = Color(
+  0xFFF9FAFB,
+); // Gris Très Clair (Fond principal)
+const Color surfaceColor = Color(0xFFFFFFFF); // Blanc Pur (Cartes, surfaces)
+const Color textDark = Color(
+  0xFF161E2B,
+); // Gris Anthracite Profond (Texte principal)
+const Color textGrey = Color(0xFF6B7280); // Gris Moyen (Texte secondaire)
 
 // Couleurs sémantiques (pour messages d'état)
 const Color successGreen = Color(0xFF4CAF50); // Vert pour succès
@@ -35,6 +41,7 @@ class _DashboardPageState extends State<DashboardPage> {
   List<Project> _projects = [];
   bool _loading = true;
   int _selectedIndex = 0; // Pour la sélection du Drawer
+  Map<String, dynamic>? _currentUserProfile;
 
   @override
   void initState() {
@@ -59,11 +66,14 @@ class _DashboardPageState extends State<DashboardPage> {
           );
           Navigator.of(context).pushAndRemoveUntil(
             MaterialPageRoute(builder: (context) => const LoginPage()),
-                (Route<dynamic> route) => false,
+            (Route<dynamic> route) => false,
           );
         }
         return;
       }
+
+      // Charger le profil utilisateur
+      await _loadUserProfile(userId);
 
       final projects = await _projectService.getUserProjects(userId);
       setState(() {
@@ -73,24 +83,44 @@ class _DashboardPageState extends State<DashboardPage> {
     } catch (e) {
       if (mounted) {
         setState(() => _loading = false);
-        String errorMessage = "Erreur lors du chargement des projets : ${e.toString()}";
+        String errorMessage =
+            "Erreur lors du chargement des projets : ${e.toString()}";
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(errorMessage),
-            backgroundColor: errorRed,
-          ),
+          SnackBar(content: Text(errorMessage), backgroundColor: errorRed),
         );
         print("Erreur de chargement des projets : $e");
       }
     }
   }
 
+  Future<void> _loadUserProfile(String userId) async {
+    try {
+      final response = await Supabase.instance.client
+          .from('profiles')
+          .select()
+          .eq('id', userId)
+          .single();
+
+      setState(() {
+        _currentUserProfile = response;
+      });
+    } catch (e) {
+      print("Erreur lors du chargement du profil utilisateur : $e");
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     // Calculer les comptes pour les statistiques
-    final todoCount = _projects.where((p) => p.status.toLowerCase() == "to do").length;
-    final inProgressCount = _projects.where((p) => p.status.toLowerCase() == "in progress").length;
-    final doneCount = _projects.where((p) => p.status.toLowerCase() == "done").length;
+    final todoCount = _projects
+        .where((p) => p.status.toLowerCase() == "to do")
+        .length;
+    final inProgressCount = _projects
+        .where((p) => p.status.toLowerCase() == "in progress")
+        .length;
+    final doneCount = _projects
+        .where((p) => p.status.toLowerCase() == "done")
+        .length;
 
     return Scaffold(
       backgroundColor: backgroundColor,
@@ -110,92 +140,25 @@ class _DashboardPageState extends State<DashboardPage> {
               // colorFilter: const ColorFilter.mode(primaryBlue, BlendMode.srcIn), // Remplacé/désactivé
             ),
             const SizedBox(width: 8),
-
           ],
         ),
         centerTitle: true, // Centre le titre et le logo
-        iconTheme: const IconThemeData(color: textDark), // Couleur de l'icône du Drawer
+        iconTheme: const IconThemeData(
+          color: textDark,
+        ), // Couleur de l'icône du Drawer
       ),
       // Drawer pour la navigation mobile (menu hamburger)
       drawer: _buildDrawer(),
       body: _loading
           ? Center(
-        child: CircularProgressIndicator(
-          color: primaryBlue,
-          strokeWidth: 4,
-          // Color.withOpacity n'est pas déprécié. Utilisé pour la transparence.
-          backgroundColor: primaryBlue.withOpacity(0.2),
-        ),
-      )
-          : SingleChildScrollView( // Le corps principal est entièrement scrollable
-        padding: const EdgeInsets.all(16), // Padding global pour mobile
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildHeader(), // En-tête du tableau de bord
-            const SizedBox(height: 20),
-
-            // Statistiques - adaptées et empilées pour mobile
-            DashboardStatsCard(
-              title: "Tâches à Faire",
-              value: "$todoCount",
-              color: lightBlue,
-              icon: Icons.assignment_outlined,
-            ),
-            const SizedBox(height: 12),
-            DashboardStatsCard(
-              title: "Tâches En Cours",
-              value: "$inProgressCount",
-              color: lightGreen,
-              icon: Icons.pending_actions_outlined,
-            ),
-            const SizedBox(height: 12),
-            DashboardStatsCard(
-              title: "Tâches Terminées",
-              value: "$doneCount",
-              color: lightPurple,
-              icon: Icons.check_circle_outline,
-            ),
-            const SizedBox(height: 24),
-
-            Text(
-              "Avancement des Projets", // Titre pour la section Kanban
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: textDark,
+              child: CircularProgressIndicator(
+                color: primaryBlue,
+                strokeWidth: 4,
+                // Color.withOpacity n'est pas déprécié. Utilisé pour la transparence.
+                backgroundColor: primaryBlue.withOpacity(0.2),
               ),
-            ),
-            const SizedBox(height: 16),
-
-            // Section Kanban - empilée verticalement pour mobile
-            KanbanColumn(
-              title: "To Do",
-              color: lightBlue,
-              projects: _projects.where((p) => p.status.toLowerCase() == "to do").toList(),
-              icon: Icons.assignment_outlined,
-            ),
-            const SizedBox(height: 16),
-            KanbanColumn(
-              title: "In Progress",
-              color: lightGreen,
-              projects: _projects.where((p) => p.status.toLowerCase() == "in progress").toList(),
-              icon: Icons.pending_actions_outlined,
-            ),
-            const SizedBox(height: 16),
-            KanbanColumn(
-              title: "Done",
-              color: lightPurple,
-              projects: _projects.where((p) => p.status.toLowerCase() == "done").toList(),
-              icon: Icons.check_circle_outline,
-            ),
-            const SizedBox(height: 24),
-
-            const DashboardCalendar(), // Calendrier
-            const SizedBox(height: 16), // Espacement pour le bas de la page
-          ],
-        ),
-      ),
+            )
+          : _buildBodyContent(),
     );
   }
 
@@ -216,10 +179,7 @@ class _DashboardPageState extends State<DashboardPage> {
         const SizedBox(height: 6),
         Text(
           "Gérez vos projets et suivez leur avancement",
-          style: TextStyle(
-            fontSize: 14,
-            color: textGrey,
-          ),
+          style: TextStyle(fontSize: 14, color: textGrey),
         ),
         const SizedBox(height: 20), // Espacement avant le bouton
         SizedBox(
@@ -239,7 +199,10 @@ class _DashboardPageState extends State<DashboardPage> {
                 borderRadius: BorderRadius.circular(12),
               ),
               elevation: 3,
-              textStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15),
+              textStyle: const TextStyle(
+                fontWeight: FontWeight.w600,
+                fontSize: 15,
+              ),
             ),
           ),
         ),
@@ -247,7 +210,358 @@ class _DashboardPageState extends State<DashboardPage> {
     );
   }
 
-  // Méthode pour construire le Drawer
+  Widget _buildBodyContent() {
+    switch (_selectedIndex) {
+      case 0: // Dashboard
+        return _buildDashboardContent();
+      case 2: // Équipe
+        return _buildTeamContent();
+      default: // Autres pages (temporairement dashboard)
+        return _buildDashboardContent();
+    }
+  }
+
+  Widget _buildDashboardContent() {
+    // Calculer les comptes pour les statistiques
+    final todoCount = _projects
+        .where((p) => p.status.toLowerCase() == "to do")
+        .length;
+    final inProgressCount = _projects
+        .where((p) => p.status.toLowerCase() == "in progress")
+        .length;
+    final doneCount = _projects
+        .where((p) => p.status.toLowerCase() == "done")
+        .length;
+
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16), // Padding global pour mobile
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildHeader(), // En-tête du tableau de bord
+          const SizedBox(height: 20),
+
+          // Statistiques - adaptées et empilées pour mobile
+          DashboardStatsCard(
+            title: "Tâches à Faire",
+            value: "$todoCount",
+            color: lightBlue,
+            icon: Icons.assignment_outlined,
+          ),
+          const SizedBox(height: 12),
+          DashboardStatsCard(
+            title: "Tâches En Cours",
+            value: "$inProgressCount",
+            color: lightGreen,
+            icon: Icons.pending_actions_outlined,
+          ),
+          const SizedBox(height: 12),
+          DashboardStatsCard(
+            title: "Tâches Terminées",
+            value: "$doneCount",
+            color: lightPurple,
+            icon: Icons.check_circle_outline,
+          ),
+          const SizedBox(height: 24),
+
+          Text(
+            "Avancement des Projets", // Titre pour la section Kanban
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: textDark,
+            ),
+          ),
+          const SizedBox(height: 16),
+
+          // Section Kanban - empilée verticalement pour mobile
+          KanbanColumn(
+            title: "To Do",
+            color: lightBlue,
+            projects: _projects
+                .where((p) => p.status.toLowerCase() == "to do")
+                .toList(),
+            icon: Icons.assignment_outlined,
+          ),
+          const SizedBox(height: 16),
+          KanbanColumn(
+            title: "In Progress",
+            color: lightGreen,
+            projects: _projects
+                .where((p) => p.status.toLowerCase() == "in progress")
+                .toList(),
+            icon: Icons.pending_actions_outlined,
+          ),
+          const SizedBox(height: 16),
+          KanbanColumn(
+            title: "Done",
+            color: lightPurple,
+            projects: _projects
+                .where((p) => p.status.toLowerCase() == "done")
+                .toList(),
+            icon: Icons.check_circle_outline,
+          ),
+          const SizedBox(height: 24),
+
+          const DashboardCalendar(), // Calendrier
+          const SizedBox(height: 16), // Espacement pour le bas de la page
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTeamContent() {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            "Équipe",
+            style: TextStyle(
+              fontSize: 28,
+              fontWeight: FontWeight.bold,
+              color: textDark,
+              letterSpacing: -0.5,
+            ),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            "Membres de l'équipe et leurs tâches assignées",
+            style: TextStyle(fontSize: 14, color: textGrey),
+          ),
+          const SizedBox(height: 24),
+
+          // Liste des membres de l'équipe (simulation pour l'instant)
+          _buildTeamMemberCard(
+            name: "Alice Dupont",
+            email: "alice@example.com",
+            avatarColor: primaryBlue,
+            tasksAssigned: 5,
+            tasksCompleted: 3,
+            onTap: () => Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (context) => MemberDetailsPage(
+                  name: "Alice Dupont",
+                  email: "alice@example.com",
+                  avatarColor: primaryBlue,
+                  tasksAssigned: 5,
+                  tasksCompleted: 3,
+                  joinDate: "Janvier 2024",
+                  role: "Développeur Frontend",
+                  activeProjects: [
+                    "Application Mobile Todo",
+                    "Refonte Site Web",
+                    "Dashboard Analytics"
+                  ],
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 12),
+
+          _buildTeamMemberCard(
+            name: "Bob Martin",
+            email: "bob@example.com",
+            avatarColor: lightGreen,
+            tasksAssigned: 8,
+            tasksCompleted: 6,
+            onTap: () => Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (context) => MemberDetailsPage(
+                  name: "Bob Martin",
+                  email: "bob@example.com",
+                  avatarColor: lightGreen,
+                  tasksAssigned: 8,
+                  tasksCompleted: 6,
+                  joinDate: "Mars 2024",
+                  role: "Développeur Backend",
+                  activeProjects: [
+                    "API Backend",
+                    "Base de données",
+                    "Intégration CI/CD"
+                  ],
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 12),
+
+          _buildTeamMemberCard(
+            name: "Claire Bernard",
+            email: "claire@example.com",
+            avatarColor: lightPurple,
+            tasksAssigned: 4,
+            tasksCompleted: 2,
+            onTap: () => Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (context) => MemberDetailsPage(
+                  name: "Claire Bernard",
+                  email: "claire@example.com",
+                  avatarColor: lightPurple,
+                  tasksAssigned: 4,
+                  tasksCompleted: 2,
+                  joinDate: "Mai 2024",
+                  role: "Designer UX/UI",
+                  activeProjects: [
+                    "Refonte Site Web",
+                    "Application Mobile Todo",
+                    "Design System"
+                  ],
+                ),
+              ),
+            ),
+          ),
+
+          const SizedBox(height: 24),
+
+          // Section pour inviter de nouveaux membres
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: surfaceColor,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: primaryBlue.withOpacity(0.2), width: 1),
+            ),
+            child: Column(
+              children: [
+                Icon(Icons.person_add_outlined, color: primaryBlue, size: 32),
+                const SizedBox(height: 8),
+                Text(
+                  "Inviter un nouveau membre",
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: textDark,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  "Ajoutez de nouveaux membres à votre équipe",
+                  style: TextStyle(fontSize: 14, color: textGrey),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 16),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton.icon(
+                    onPressed: () {
+                      // TODO: Implémenter l'invitation de membres
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Fonctionnalité à venir !'),
+                        ),
+                      );
+                    },
+                    icon: const Icon(Icons.add),
+                    label: const Text("Inviter"),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: primaryBlue,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTeamMemberCard({
+    required String name,
+    required String email,
+    required Color avatarColor,
+    required int tasksAssigned,
+    required int tasksCompleted,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: surfaceColor,
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 4,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            CircleAvatar(
+              radius: 24,
+              backgroundColor: avatarColor.withOpacity(0.2),
+              child: Text(
+                name.substring(0, 1).toUpperCase(),
+                style: TextStyle(
+                  color: avatarColor,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18,
+                ),
+              ),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    name,
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: textDark,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(email, style: TextStyle(fontSize: 14, color: textGrey)),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.assignment_outlined,
+                        size: 16,
+                        color: primaryBlue,
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        "$tasksAssigned tâches assignées",
+                        style: TextStyle(fontSize: 12, color: textGrey),
+                      ),
+                      const SizedBox(width: 12),
+                      Icon(
+                        Icons.check_circle_outline,
+                        size: 16,
+                        color: successGreen,
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        "$tasksCompleted terminées",
+                        style: TextStyle(fontSize: 12, color: textGrey),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            Icon(Icons.more_vert, color: textGrey.withOpacity(0.7), size: 20),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildDrawer() {
     return Drawer(
       backgroundColor: surfaceColor,
@@ -283,7 +597,8 @@ class _DashboardPageState extends State<DashboardPage> {
           ),
           Expanded(
             child: ListView(
-              padding: EdgeInsets.zero, // Supprime le padding par défaut du ListView
+              padding:
+                  EdgeInsets.zero, // Supprime le padding par défaut du ListView
               children: [
                 SidebarItem(
                   title: "Dashboard",
@@ -291,7 +606,9 @@ class _DashboardPageState extends State<DashboardPage> {
                   isSelected: _selectedIndex == 0,
                   onTap: () {
                     setState(() => _selectedIndex = 0);
-                    Navigator.pop(context); // Ferme le Drawer après la sélection
+                    Navigator.pop(
+                      context,
+                    ); // Ferme le Drawer après la sélection
                   },
                 ),
                 SidebarItem(
@@ -308,7 +625,6 @@ class _DashboardPageState extends State<DashboardPage> {
                       ),
                     );
                   },
-
                 ),
                 SidebarItem(
                   title: "Équipe",
@@ -369,7 +685,11 @@ class _DashboardPageState extends State<DashboardPage> {
                     radius: 20,
                     // Color.withOpacity n'est pas déprécié.
                     backgroundColor: primaryBlue.withOpacity(0.15),
-                    child: Icon(Icons.person_outline, color: primaryBlue, size: 20),
+                    child: Icon(
+                      Icons.person_outline,
+                      color: primaryBlue,
+                      size: 20,
+                    ),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
@@ -377,7 +697,7 @@ class _DashboardPageState extends State<DashboardPage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          "Utilisateur", // Nom d'utilisateur par défaut
+                          _currentUserProfile?['username'] ?? 'Utilisateur',
                           style: TextStyle(
                             color: textDark,
                             fontSize: 14,
@@ -386,7 +706,7 @@ class _DashboardPageState extends State<DashboardPage> {
                         ),
                         const SizedBox(height: 2),
                         Text(
-                          "En ligne",
+                          _currentUserProfile?['email'] ?? 'En ligne',
                           style: TextStyle(
                             // Color.withOpacity n'est pas déprécié.
                             color: textGrey.withOpacity(0.8),
@@ -397,8 +717,82 @@ class _DashboardPageState extends State<DashboardPage> {
                     ),
                   ),
                   // Color.withOpacity n'est pas déprécié.
-                  Icon(Icons.more_vert, color: textGrey.withOpacity(0.7), size: 18),
+                  Icon(
+                    Icons.more_vert,
+                    color: textGrey.withOpacity(0.7),
+                    size: 18,
+                  ),
                 ],
+              ),
+            ),
+          ),
+
+          // Bouton de déconnexion
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                onPressed: () async {
+                  // Fermer le drawer d'abord
+                  Navigator.pop(context);
+
+                  // Afficher une boîte de dialogue de confirmation
+                  final shouldLogout = await showDialog<bool>(
+                    context: context,
+                    builder: (context) => AlertDialog(
+                      title: const Text('Déconnexion'),
+                      content: const Text(
+                        'Voulez-vous vraiment vous déconnecter ?',
+                      ),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(context, false),
+                          child: const Text('Annuler'),
+                        ),
+                        TextButton(
+                          onPressed: () => Navigator.pop(context, true),
+                          style: TextButton.styleFrom(
+                            foregroundColor: errorRed,
+                          ),
+                          child: const Text('Déconnexion'),
+                        ),
+                      ],
+                    ),
+                  );
+
+                  if (shouldLogout == true) {
+                    try {
+                      await Supabase.instance.client.auth.signOut();
+                      if (mounted) {
+                        // Rediriger vers la page d'accueil
+                        Navigator.of(context).pushAndRemoveUntil(
+                          MaterialPageRoute(builder: (context) => Welcome()),
+                          (Route<dynamic> route) => false,
+                        );
+                      }
+                    } catch (e) {
+                      if (mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('Erreur lors de la déconnexion: $e'),
+                            backgroundColor: errorRed,
+                          ),
+                        );
+                      }
+                    }
+                  }
+                },
+                icon: const Icon(Icons.logout),
+                label: const Text('Se déconnecter'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: errorRed,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
               ),
             ),
           ),
@@ -436,7 +830,9 @@ class SidebarItem extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
             decoration: BoxDecoration(
               // Color.withOpacity n'est pas déprécié.
-              color: isSelected ? primaryBlue.withOpacity(0.12) : Colors.transparent,
+              color: isSelected
+                  ? primaryBlue.withOpacity(0.12)
+                  : Colors.transparent,
               borderRadius: BorderRadius.circular(10),
             ),
             child: Row(
@@ -496,7 +892,8 @@ class DashboardStatsCard extends StatelessWidget {
           ),
         ],
       ),
-      child: Row( // Affichage en Row pour mobile : icône et texte/valeur côte à côte
+      child: Row(
+        // Affichage en Row pour mobile : icône et texte/valeur côte à côte
         children: [
           Container(
             padding: const EdgeInsets.all(10),
@@ -508,7 +905,8 @@ class DashboardStatsCard extends StatelessWidget {
             child: Icon(icon, color: color, size: 24),
           ),
           const SizedBox(width: 16), // Espacement entre icône et texte
-          Expanded( // Pour que le texte prenne l'espace restant
+          Expanded(
+            // Pour que le texte prenne l'espace restant
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -556,7 +954,9 @@ class KanbanColumn extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final filtered = projects.where((p) => p.status.toLowerCase() == title.toLowerCase()).toList();
+    final filtered = projects
+        .where((p) => p.status.toLowerCase() == title.toLowerCase())
+        .toList();
 
     return Container(
       decoration: BoxDecoration(
@@ -597,7 +997,10 @@ class KanbanColumn extends StatelessWidget {
                 ),
                 const Spacer(),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
                     // Color.withOpacity n'est pas déprécié.
                     color: color.withOpacity(0.25),
@@ -616,23 +1019,26 @@ class KanbanColumn extends StatelessWidget {
             ),
           ),
           // Liste des ProjectCards
-          SizedBox( // Hauteur fixe pour le ListView interne des tâches Kanban sur mobile
+          SizedBox(
+            // Hauteur fixe pour le ListView interne des tâches Kanban sur mobile
             // Ceci assure que chaque colonne Kanban prend une hauteur raisonnable
             // et que l'ensemble du dashboard reste scrollable.
-            height: MediaQuery.of(context).size.height * 0.22, // Ajusté à 22% pour un bon équilibre
+            height:
+                MediaQuery.of(context).size.height *
+                0.22, // Ajusté à 22% pour un bon équilibre
             child: ListView(
               padding: const EdgeInsets.all(12),
               children: filtered.isEmpty
                   ? [
-                Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Text(
-                    "Aucune tâche à ${title.toLowerCase()}",
-                    style: TextStyle(color: textGrey, fontSize: 13),
-                    textAlign: TextAlign.center,
-                  ),
-                )
-              ]
+                      Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Text(
+                          "Aucune tâche à ${title.toLowerCase()}",
+                          style: TextStyle(color: textGrey, fontSize: 13),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    ]
                   : filtered.map((p) => ProjectCard(project: p)).toList(),
             ),
           ),
@@ -690,11 +1096,7 @@ class ProjectCard extends StatelessWidget {
                   color: primaryBlue.withOpacity(0.12),
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: Icon(
-                  Icons.more_horiz,
-                  size: 16,
-                  color: primaryBlue,
-                ),
+                child: Icon(Icons.more_horiz, size: 16, color: primaryBlue),
               ),
             ],
           ),
@@ -702,7 +1104,11 @@ class ProjectCard extends StatelessWidget {
           Row(
             children: [
               // Color.withOpacity n'est pas déprécié.
-              Icon(Icons.calendar_today_outlined, size: 14, color: textGrey.withOpacity(0.8)),
+              Icon(
+                Icons.calendar_today_outlined,
+                size: 14,
+                color: textGrey.withOpacity(0.8),
+              ),
               const SizedBox(width: 6),
               Text(
                 "Aujourd'hui", // Date dynamique à implémenter (project.dueDate)
@@ -769,10 +1175,7 @@ class DashboardCalendar extends StatelessWidget {
           Center(
             child: Text(
               "Vos prochains projets et événements apparaîtront ici",
-              style: TextStyle(
-                color: textGrey,
-                fontSize: 14,
-              ),
+              style: TextStyle(color: textGrey, fontSize: 14),
               textAlign: TextAlign.center,
             ),
           ),
