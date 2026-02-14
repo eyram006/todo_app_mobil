@@ -78,44 +78,23 @@ class _RegisterPageState extends State<RegisterPage> {
   }
 
   Future<void> _register() async {
-    print('🔄 Début de la méthode _register');
+    if (!_formKey.currentState!.validate()) return;
 
-    if (!_formKey.currentState!.validate()) {
-      print('❌ Validation du formulaire échouée');
-      return;
-    }
-
-    print('✅ Validation du formulaire réussie');
     setState(() => _loading = true);
 
     try {
-      print(
-        '📧 Tentative d\'inscription avec email: ${_emailController.text.trim()}',
-      );
-
       final response = await supabase.auth.signUp(
         email: _emailController.text.trim(),
         password: _passwordController.text.trim(),
       );
 
-      print(
-        '📨 Réponse de signUp reçue: ${response.user != null ? 'Utilisateur créé' : 'Utilisateur null'}',
-      );
-
       final user = response.user;
-      if (user == null) {
-        print('❌ Utilisateur null après signUp');
-        throw 'Erreur lors de la création du compte';
-      }
-
-      print('👤 Utilisateur créé avec ID: ${user.id}');
+      if (user == null) throw 'Erreur lors de la création du compte';
 
       // Vérification de sécurité pour _selectedCountry
       final countryCode =
           _selectedCountry ?? '+228'; // Code par défaut pour le Togo
-      print('🌍 Pays sélectionné: $countryCode');
 
-      print('💾 Insertion du profil dans la base de données...');
       await supabase.from('profiles').insert({
         'id': user.id,
         'username': _usernameController.text.trim(),
@@ -123,36 +102,26 @@ class _RegisterPageState extends State<RegisterPage> {
         'country': countryCode,
       });
 
-      print('✅ Profil inséré avec succès');
+      if (!mounted) return;
 
-      if (!mounted) {
-        print('⚠️ Widget non monté, arrêt');
-        return;
-      }
-
-      print('🎉 Affichage du message de succès');
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(const SnackBar(content: Text('Inscription réussie 🎉')));
 
-      print('🏠 Navigation vers le Dashboard');
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => const DashboardPage()),
       );
     } on AuthException catch (e) {
-      print('❌ Erreur AuthException: ${e.message}');
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text(e.message)));
     } catch (e) {
-      print('❌ Erreur générale: $e');
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text(e.toString())));
     }
 
-    print('🔄 Fin de la méthode _register, remise à zéro du loading');
     setState(() => _loading = false);
   }
 
