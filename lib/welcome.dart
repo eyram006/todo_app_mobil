@@ -11,28 +11,26 @@ class Welcome extends StatefulWidget {
 class _WelcomeState extends State<Welcome> {
   @override
   Widget build(BuildContext context) {
-    return Container(
-      child: Scaffold(
-        backgroundColor: Colors.white,
-        body: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.all(24),
-            child: Column(
-              children: [
-                Expanded(
-                  child: SingleChildScrollView(
-                    child: Column(
-                      children: const [
-                        _HeaderSection(),
-                        SizedBox(height: 32),
-                        _FeaturesSection(),
-                      ],
-                    ),
+    return Scaffold(
+      backgroundColor: Colors.white,
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            children: [
+              Expanded(
+                child: SingleChildScrollView(
+                  child: Column(
+                    children: const [
+                      _HeaderSection(),
+                      SizedBox(height: 32),
+                      _FeaturesSection(),
+                    ],
                   ),
                 ),
-                _BottomAction(),
-              ],
-            ),
+              ),
+              _BottomAction(),
+            ],
           ),
         ),
       ),

@@ -185,8 +185,7 @@ class _ProjectsPageState extends State<ProjectsPage> {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(content: Text("Erreur lors de la création du projet : ${e.toString()}")),
                         );
-                        print("Erreur de création de projet : $e"); // Pour le débogage technique en console
-                      }
+                        }
                     }
                   },
                   child: const Text("Créer"),

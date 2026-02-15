@@ -57,7 +57,6 @@ class _MyAppState extends State<MyApp> {
         });
       }
     } catch (e) {
-      print('Erreur lors de la vérification de l\'authentification: $e');
       // En cas d'erreur, aller à la page d'accueil
       setState(() {
         _initialScreen = Welcome();
