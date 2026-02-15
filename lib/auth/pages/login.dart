@@ -2,14 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:todo_app/auth/pages/register.dart';
+import 'package:todo_app/theme.dart';
 
 import '../../dashboard/pages/dashbord_page.dart';
 
-// Même couleurs que Register
-const Color primaryBlue = Color(0xFF21B6EC);
-const Color textDark = Color(0xFF161E2B);
-const Color textGrey = Color(0xFF6B7280);
-const Color lightBlueBg = Color(0xFFE0F7FA);
+// Use centralized colors from AppColors directly
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -96,12 +93,15 @@ class _LoginPageState extends State<LoginPage> {
         backgroundColor: Colors.white,
         elevation: 1,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: textDark),
+          icon: const Icon(Icons.arrow_back, color: AppColors.textDark),
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: const Text(
           'Connexion',
-          style: TextStyle(color: textDark, fontWeight: FontWeight.bold),
+          style: TextStyle(
+            color: AppColors.textDark,
+            fontWeight: FontWeight.bold,
+          ),
         ),
         centerTitle: true,
       ),
@@ -124,7 +124,7 @@ class _LoginPageState extends State<LoginPage> {
 
                   Text(
                     'Connectez-vous pour accéder à votre compte.',
-                    style: TextStyle(fontSize: 15, color: textGrey),
+                    style: TextStyle(fontSize: 15, color: AppColors.textGrey),
                   ),
                   const SizedBox(height: 35),
 
@@ -136,14 +136,16 @@ class _LoginPageState extends State<LoginPage> {
                       labelText: 'E-mail',
                       prefixIcon: const Icon(
                         Icons.email_outlined,
-                        color: primaryBlue,
+                        color: AppColors.primary,
                       ),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(14),
                         borderSide: BorderSide.none,
                       ),
                       filled: true,
-                      fillColor: lightBlueBg.withAlpha((0.6 * 255).toInt()),
+                      fillColor: AppColors.lightBlue.withAlpha(
+                        (0.6 * 255).toInt(),
+                      ),
                       contentPadding: const EdgeInsets.symmetric(
                         vertical: 16.0,
                       ),
@@ -160,7 +162,7 @@ class _LoginPageState extends State<LoginPage> {
                       labelText: 'Mot de passe',
                       prefixIcon: const Icon(
                         Icons.lock_outline,
-                        color: primaryBlue,
+                        color: AppColors.primary,
                       ),
                       suffixIcon: IconButton(
                         icon: Icon(
@@ -180,7 +182,9 @@ class _LoginPageState extends State<LoginPage> {
                         borderSide: BorderSide.none,
                       ),
                       filled: true,
-                      fillColor: lightBlueBg.withAlpha((0.6 * 255).toInt()),
+                      fillColor: AppColors.lightBlue.withAlpha(
+                        (0.6 * 255).toInt(),
+                      ),
                       contentPadding: const EdgeInsets.symmetric(
                         vertical: 16.0,
                       ),
@@ -196,12 +200,14 @@ class _LoginPageState extends State<LoginPage> {
                       onPressed: () {
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) => const RegisterPage()),
+                          MaterialPageRoute(
+                            builder: (context) => const RegisterPage(),
+                          ),
                         );
                       },
                       child: const Text(
                         'Mot de passe oublié ?',
-                        style: TextStyle(color: primaryBlue),
+                        style: TextStyle(color: AppColors.primary),
                       ),
                     ),
                   ),
@@ -212,7 +218,7 @@ class _LoginPageState extends State<LoginPage> {
                     width: double.infinity,
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: primaryBlue,
+                        backgroundColor: AppColors.primary,
                         elevation: 4,
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         shape: RoundedRectangleBorder(
@@ -240,19 +246,24 @@ class _LoginPageState extends State<LoginPage> {
                     children: [
                       Text(
                         'Vous n\'avez pas de compte ?',
-                        style: TextStyle(color: textGrey, fontSize: 17),
+                        style: TextStyle(
+                          color: AppColors.textGrey,
+                          fontSize: 17,
+                        ),
                       ),
                       TextButton(
                         onPressed: () {
                           Navigator.push(
                             context,
-                            MaterialPageRoute(builder: (context) => const RegisterPage()),
+                            MaterialPageRoute(
+                              builder: (context) => const RegisterPage(),
+                            ),
                           );
                         },
                         child: const Text(
                           'Inscrivez-vous',
                           style: TextStyle(
-                            color: primaryBlue,
+                            color: AppColors.primary,
                             fontSize: 17,
                             fontWeight: FontWeight.bold,
                           ),

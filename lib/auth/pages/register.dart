@@ -4,11 +4,9 @@ import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:todo_app/dashboard/pages/dashbord_page.dart';
+import 'package:todo_app/theme.dart';
 
-const Color primaryBlue = Color(0xFF21B6EC);
-const Color textDark = Color(0xFF161E2B);
-const Color textGrey = Color(0xFF6B7280);
-const Color lightBlueBg = Color(0xFFE0F7FA);
+// Use centralized AppColors directly
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -143,7 +141,10 @@ class _RegisterPageState extends State<RegisterPage> {
         elevation: 1,
         title: const Text(
           'Créer un compte',
-          style: TextStyle(color: textDark, fontWeight: FontWeight.bold),
+          style: TextStyle(
+            color: AppColors.textDark,
+            fontWeight: FontWeight.bold,
+          ),
         ),
         centerTitle: true,
       ),
@@ -199,7 +200,7 @@ class _RegisterPageState extends State<RegisterPage> {
                           builder: (state) {
                             return Container(
                               decoration: BoxDecoration(
-                                color: lightBlueBg.withAlpha(
+                                color: AppColors.lightBlue.withAlpha(
                                   (0.6 * 255).toInt(),
                                 ),
                                 borderRadius: BorderRadius.circular(14),
@@ -277,7 +278,7 @@ class _RegisterPageState extends State<RegisterPage> {
                     width: double.infinity,
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: primaryBlue,
+                        backgroundColor: AppColors.primary,
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(14),
@@ -312,14 +313,14 @@ class _RegisterPageState extends State<RegisterPage> {
   }) {
     return InputDecoration(
       labelText: label,
-      prefixIcon: Icon(icon, color: primaryBlue),
+      prefixIcon: Icon(icon, color: AppColors.primary),
       suffixIcon: suffix,
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(14),
         borderSide: BorderSide.none,
       ),
       filled: true,
-      fillColor: lightBlueBg.withAlpha((0.6 * 255).toInt()),
+      fillColor: AppColors.lightBlue.withAlpha((0.6 * 255).toInt()),
       contentPadding: const EdgeInsets.symmetric(vertical: 16),
     );
   }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:todo_app/auth/pages/login.dart';
+import 'package:todo_app/theme.dart';
 
 class Welcome extends StatefulWidget {
   const Welcome({super.key});
@@ -12,7 +13,7 @@ class _WelcomeState extends State<Welcome> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.background,
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(24),
@@ -58,7 +59,7 @@ class _HeaderSection extends StatelessWidget {
         Text(
           'Boostez votre productivité avec ToDo.',
           textAlign: TextAlign.center,
-          style: TextStyle(fontSize: 17, color: textDark),
+          style: TextStyle(fontSize: 17, color: AppColors.textDark),
         ),
       ],
     );
@@ -137,7 +138,7 @@ class _FeatureCard extends StatelessWidget {
               child: Icon(
                 icon,
                 size: 28,
-                color: const Color(0xFF06B6D4), // cyan
+                color: AppColors.accentCyan, // cyan
               ),
             ),
             const SizedBox(width: 16),
@@ -151,7 +152,7 @@ class _FeatureCard extends StatelessWidget {
                     style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
-                      color: Color(0xFF1F2937), // texte foncé pour lisibilité
+                      color: AppColors.textDark, // texte foncé pour lisibilité
                     ),
                   ),
                   const SizedBox(height: 6),
@@ -159,7 +160,7 @@ class _FeatureCard extends StatelessWidget {
                     description,
                     style: const TextStyle(
                       fontSize: 14,
-                      color: Color(0xFF4B5563), // gris foncé lisible
+                      color: AppColors.textGrey, // gris foncé lisible
                     ),
                   ),
                 ],
@@ -183,7 +184,7 @@ class _BottomAction extends StatelessWidget {
         width: double.infinity,
         child: ElevatedButton(
           style: ElevatedButton.styleFrom(
-            backgroundColor: primaryBlue,
+            backgroundColor: AppColors.primary,
             elevation: 4,
             padding: const EdgeInsets.symmetric(vertical: 16),
             shape: RoundedRectangleBorder(
@@ -210,9 +211,4 @@ class _BottomAction extends StatelessWidget {
   }
 }
 
-const Color primaryBlue = Color(0xFF21B6EC);
-const Color lightBlue = Color(0xFF5ADFF6); // fond cyan très doux
-const Color lightGreen = Color(0xFFD1FAE5);
-const Color lightPurple = Color(0xFFEDE9FE);
-const Color textDark = Color(0xFF161E2B);
-const Color textGrey = Color(0xFF6B7280);
+// Use AppColors directly

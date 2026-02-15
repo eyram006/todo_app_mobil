@@ -3,6 +3,7 @@ import 'package:flutter_svg/flutter_svg.dart'; // Importation nécessaire pour S
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:todo_app/dashboard/pages/create_project_page.dart';
 import 'package:todo_app/dashboard/pages/projects_page.dart';
+import 'package:todo_app/theme.dart';
 
 import '../../auth/pages/login.dart'; // Assurez-vous que cette page existe
 import '../../welcome.dart'; // Import pour la page d'accueil
@@ -10,25 +11,7 @@ import '../models/project.dart';
 import '../services/project_service.dart';
 import 'member_details_page.dart'; // Import de la page des détails du membre
 
-// --- Palette de couleurs "TODO" ---
-const Color primaryBlue = Color(0xFF21B6EC); // Bleu Cyan Dynamique
-const Color lightBlue = Color(0xFF5ADFF6); // Aqua Pâle (To Do)
-const Color lightGreen = Color(0xFFD1FAE5); // Vert Menthe Clair (In Progress)
-const Color lightPurple = Color(0xFFEDE9FE); // Lavande Douce (Done)
-
-const Color backgroundColor = Color(
-  0xFFF9FAFB,
-); // Gris Très Clair (Fond principal)
-const Color surfaceColor = Color(0xFFFFFFFF); // Blanc Pur (Cartes, surfaces)
-const Color textDark = Color(
-  0xFF161E2B,
-); // Gris Anthracite Profond (Texte principal)
-const Color textGrey = Color(0xFF6B7280); // Gris Moyen (Texte secondaire)
-
-// Couleurs sémantiques (pour messages d'état)
-const Color successGreen = Color(0xFF4CAF50); // Vert pour succès
-const Color warningOrange = Color(0xFFFFC107); // Orange pour avertissement
-const Color errorRed = Color(0xFFF44336); // Rouge pour erreur
+// Colors are centralized in `lib/theme.dart` (AppColors)
 
 class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key});
@@ -56,15 +39,8 @@ class _DashboardPageState extends State<DashboardPage> {
     });
     try {
       final String? userId = Supabase.instance.client.auth.currentUser?.id;
-
       if (userId == null) {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text("Session expirée. Veuillez vous reconnecter."),
-              backgroundColor: errorRed,
-            ),
-          );
           Navigator.of(context).pushAndRemoveUntil(
             MaterialPageRoute(builder: (context) => const LoginPage()),
             (Route<dynamic> route) => false,
@@ -73,23 +49,23 @@ class _DashboardPageState extends State<DashboardPage> {
         return;
       }
 
-      // Charger le profil utilisateur
-      await _loadUserProfile(userId);
-
       final projects = await _projectService.getUserProjects(userId);
       setState(() {
         _projects = projects;
         _loading = false;
       });
+
+      // Charger le profil utilisateur associé
+      await _loadUserProfile(userId);
     } catch (e) {
       if (mounted) {
         setState(() => _loading = false);
-        String errorMessage =
-            "Erreur lors du chargement des projets : ${e.toString()}";
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(errorMessage), backgroundColor: errorRed),
+          SnackBar(
+            content: Text('Erreur lors du chargement des projets: $e'),
+            backgroundColor: AppColors.error,
+          ),
         );
-        print("Erreur de chargement des projets : $e");
       }
     }
   }
@@ -100,34 +76,28 @@ class _DashboardPageState extends State<DashboardPage> {
           .from('profiles')
           .select()
           .eq('id', userId)
-          .single();
+          .maybeSingle();
 
-      setState(() {
-        _currentUserProfile = response;
-      });
+      if (response != null) {
+        setState(() {
+          _currentUserProfile = Map<String, dynamic>.from(response as Map);
+        });
+      }
     } catch (e) {
+      // ignore: avoid_print
       print("Erreur lors du chargement du profil utilisateur : $e");
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    // Calculer les comptes pour les statistiques
-    final todoCount = _projects
-        .where((p) => p.status.toLowerCase() == "to do")
-        .length;
-    final inProgressCount = _projects
-        .where((p) => p.status.toLowerCase() == "in progress")
-        .length;
-    final doneCount = _projects
-        .where((p) => p.status.toLowerCase() == "done")
-        .length;
+    // Calculer les comptes pour les statistiques (utilisés dans _buildDashboardContent)
 
     return Scaffold(
-      backgroundColor: backgroundColor,
+      backgroundColor: AppColors.background,
       // AppBar pour mobile : Logo et nom de l'app
       appBar: AppBar(
-        backgroundColor: surfaceColor,
+        backgroundColor: AppColors.surface,
         elevation: 0.8, // Ombre subtile sous l'AppBar
         title: Row(
           mainAxisSize: MainAxisSize.min, // Occupe le minimum de largeur
@@ -138,14 +108,14 @@ class _DashboardPageState extends State<DashboardPage> {
               'assets/images/Logo_ToDo.svg', // Assurez-vous que ce chemin est correct
               height: 40,
               width: 40,
-              // colorFilter: const ColorFilter.mode(primaryBlue, BlendMode.srcIn), // Remplacé/désactivé
+              // colorFilter: const ColorFilter.mode(AppColors.primary, BlendMode.srcIn), // Remplacé/désactivé
             ),
             const SizedBox(width: 8),
           ],
         ),
         centerTitle: true, // Centre le titre et le logo
-        iconTheme: const IconThemeData(
-          color: textDark,
+        iconTheme: IconThemeData(
+          color: AppColors.textDark,
         ), // Couleur de l'icône du Drawer
       ),
       // Drawer pour la navigation mobile (menu hamburger)
@@ -153,10 +123,10 @@ class _DashboardPageState extends State<DashboardPage> {
       body: _loading
           ? Center(
               child: CircularProgressIndicator(
-                color: primaryBlue,
+                color: AppColors.primary,
                 strokeWidth: 4,
                 // Color.withOpacity n'est pas déprécié. Utilisé pour la transparence.
-                backgroundColor: primaryBlue.withOpacity(0.2),
+                backgroundColor: AppColors.primary.withOpacity(0.2),
               ),
             )
           : _buildBodyContent(),
@@ -173,14 +143,14 @@ class _DashboardPageState extends State<DashboardPage> {
           style: TextStyle(
             fontSize: 28,
             fontWeight: FontWeight.bold,
-            color: textDark,
+            color: AppColors.textDark,
             letterSpacing: -0.5,
           ),
         ),
         const SizedBox(height: 6),
         Text(
           "Gérez vos projets et suivez leur avancement",
-          style: TextStyle(fontSize: 14, color: textGrey),
+          style: TextStyle(fontSize: 14, color: AppColors.textGrey),
         ),
         const SizedBox(height: 20), // Espacement avant le bouton
         SizedBox(
@@ -200,7 +170,7 @@ class _DashboardPageState extends State<DashboardPage> {
             icon: const Icon(Icons.add, size: 18),
             label: const Text("Nouveau Projet"),
             style: ElevatedButton.styleFrom(
-              backgroundColor: primaryBlue,
+              backgroundColor: AppColors.primary,
               foregroundColor: Colors.white,
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
               shape: RoundedRectangleBorder(
@@ -253,21 +223,21 @@ class _DashboardPageState extends State<DashboardPage> {
           DashboardStatsCard(
             title: "Tâches à Faire",
             value: "$todoCount",
-            color: lightBlue,
+            color: AppColors.lightBlue,
             icon: Icons.assignment_outlined,
           ),
           const SizedBox(height: 12),
           DashboardStatsCard(
             title: "Tâches En Cours",
             value: "$inProgressCount",
-            color: lightGreen,
+            color: AppColors.lightGreen,
             icon: Icons.pending_actions_outlined,
           ),
           const SizedBox(height: 12),
           DashboardStatsCard(
             title: "Tâches Terminées",
             value: "$doneCount",
-            color: lightPurple,
+            color: AppColors.lightPurple,
             icon: Icons.check_circle_outline,
           ),
           const SizedBox(height: 24),
@@ -277,7 +247,7 @@ class _DashboardPageState extends State<DashboardPage> {
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,
-              color: textDark,
+              color: AppColors.textDark,
             ),
           ),
           const SizedBox(height: 16),
@@ -285,7 +255,7 @@ class _DashboardPageState extends State<DashboardPage> {
           // Section Kanban - empilée verticalement pour mobile
           KanbanColumn(
             title: "To Do",
-            color: lightBlue,
+            color: AppColors.lightBlue,
             projects: _projects
                 .where((p) => p.status.toLowerCase() == "to do")
                 .toList(),
@@ -294,7 +264,7 @@ class _DashboardPageState extends State<DashboardPage> {
           const SizedBox(height: 16),
           KanbanColumn(
             title: "In Progress",
-            color: lightGreen,
+            color: AppColors.lightGreen,
             projects: _projects
                 .where((p) => p.status.toLowerCase() == "in progress")
                 .toList(),
@@ -303,7 +273,7 @@ class _DashboardPageState extends State<DashboardPage> {
           const SizedBox(height: 16),
           KanbanColumn(
             title: "Done",
-            color: lightPurple,
+            color: AppColors.lightPurple,
             projects: _projects
                 .where((p) => p.status.toLowerCase() == "done")
                 .toList(),
@@ -329,14 +299,14 @@ class _DashboardPageState extends State<DashboardPage> {
             style: TextStyle(
               fontSize: 28,
               fontWeight: FontWeight.bold,
-              color: textDark,
+              color: AppColors.textDark,
               letterSpacing: -0.5,
             ),
           ),
           const SizedBox(height: 6),
           Text(
             "Membres de l'équipe et leurs tâches assignées",
-            style: TextStyle(fontSize: 14, color: textGrey),
+            style: TextStyle(fontSize: 14, color: AppColors.textGrey),
           ),
           const SizedBox(height: 24),
 
@@ -344,7 +314,7 @@ class _DashboardPageState extends State<DashboardPage> {
           _buildTeamMemberCard(
             name: "Alice Dupont",
             email: "alice@example.com",
-            avatarColor: primaryBlue,
+            avatarColor: AppColors.primary,
             tasksAssigned: 5,
             tasksCompleted: 3,
             onTap: () => Navigator.of(context).push(
@@ -352,7 +322,7 @@ class _DashboardPageState extends State<DashboardPage> {
                 builder: (context) => MemberDetailsPage(
                   name: "Alice Dupont",
                   email: "alice@example.com",
-                  avatarColor: primaryBlue,
+                  avatarColor: AppColors.primary,
                   tasksAssigned: 5,
                   tasksCompleted: 3,
                   joinDate: "Janvier 2024",
@@ -371,7 +341,7 @@ class _DashboardPageState extends State<DashboardPage> {
           _buildTeamMemberCard(
             name: "Bob Martin",
             email: "bob@example.com",
-            avatarColor: lightGreen,
+            avatarColor: AppColors.lightGreen,
             tasksAssigned: 8,
             tasksCompleted: 6,
             onTap: () => Navigator.of(context).push(
@@ -379,7 +349,7 @@ class _DashboardPageState extends State<DashboardPage> {
                 builder: (context) => MemberDetailsPage(
                   name: "Bob Martin",
                   email: "bob@example.com",
-                  avatarColor: lightGreen,
+                  avatarColor: AppColors.lightGreen,
                   tasksAssigned: 8,
                   tasksCompleted: 6,
                   joinDate: "Mars 2024",
@@ -398,7 +368,7 @@ class _DashboardPageState extends State<DashboardPage> {
           _buildTeamMemberCard(
             name: "Claire Bernard",
             email: "claire@example.com",
-            avatarColor: lightPurple,
+            avatarColor: AppColors.lightPurple,
             tasksAssigned: 4,
             tasksCompleted: 2,
             onTap: () => Navigator.of(context).push(
@@ -406,7 +376,7 @@ class _DashboardPageState extends State<DashboardPage> {
                 builder: (context) => MemberDetailsPage(
                   name: "Claire Bernard",
                   email: "claire@example.com",
-                  avatarColor: lightPurple,
+                  avatarColor: AppColors.lightPurple,
                   tasksAssigned: 4,
                   tasksCompleted: 2,
                   joinDate: "Mai 2024",
@@ -427,26 +397,30 @@ class _DashboardPageState extends State<DashboardPage> {
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: surfaceColor,
+              color: AppColors.surface,
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: primaryBlue.withOpacity(0.2), width: 1),
+              border: Border.all(color: AppColors.primary.withOpacity(0.2), width: 1),
             ),
             child: Column(
               children: [
-                Icon(Icons.person_add_outlined, color: primaryBlue, size: 32),
+                Icon(
+                  Icons.person_add_outlined,
+                  color: AppColors.primary,
+                  size: 32,
+                ),
                 const SizedBox(height: 8),
                 Text(
                   "Inviter un nouveau membre",
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
-                    color: textDark,
+                    color: AppColors.textDark,
                   ),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   "Ajoutez de nouveaux membres à votre équipe",
-                  style: TextStyle(fontSize: 14, color: textGrey),
+                  style: TextStyle(fontSize: 14, color: AppColors.textGrey),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 16),
@@ -464,7 +438,7 @@ class _DashboardPageState extends State<DashboardPage> {
                     icon: const Icon(Icons.add),
                     label: const Text("Inviter"),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: primaryBlue,
+                      backgroundColor: AppColors.primary,
                       foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(vertical: 12),
                       shape: RoundedRectangleBorder(
@@ -495,7 +469,7 @@ class _DashboardPageState extends State<DashboardPage> {
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: surfaceColor,
+          color: AppColors.surface,
           borderRadius: BorderRadius.circular(12),
           boxShadow: [
             BoxShadow(
@@ -513,7 +487,7 @@ class _DashboardPageState extends State<DashboardPage> {
               child: Text(
                 name.substring(0, 1).toUpperCase(),
                 style: TextStyle(
-                  color: avatarColor,
+                      color: avatarColor,
                   fontWeight: FontWeight.bold,
                   fontSize: 18,
                 ),
@@ -529,41 +503,41 @@ class _DashboardPageState extends State<DashboardPage> {
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
-                      color: textDark,
+                      color: AppColors.textDark,
                     ),
                   ),
                   const SizedBox(height: 2),
-                  Text(email, style: TextStyle(fontSize: 14, color: textGrey)),
+                  Text(email, style: TextStyle(fontSize: 14, color: AppColors.textGrey)),
                   const SizedBox(height: 8),
                   Row(
                     children: [
                       Icon(
                         Icons.assignment_outlined,
                         size: 16,
-                        color: primaryBlue,
+                        color: AppColors.primary,
                       ),
                       const SizedBox(width: 4),
                       Text(
                         "$tasksAssigned tâches assignées",
-                        style: TextStyle(fontSize: 12, color: textGrey),
+                        style: TextStyle(fontSize: 12, color: AppColors.textGrey),
                       ),
                       const SizedBox(width: 12),
                       Icon(
                         Icons.check_circle_outline,
                         size: 16,
-                        color: successGreen,
+                        color: AppColors.success,
                       ),
                       const SizedBox(width: 4),
                       Text(
                         "$tasksCompleted terminées",
-                        style: TextStyle(fontSize: 12, color: textGrey),
+                        style: TextStyle(fontSize: 12, color: AppColors.textGrey),
                       ),
                     ],
                   ),
                 ],
               ),
             ),
-            Icon(Icons.more_vert, color: textGrey.withOpacity(0.7), size: 20),
+            Icon(Icons.more_vert, color: AppColors.textGrey.withOpacity(0.7), size: 20),
           ],
         ),
       ),
@@ -572,18 +546,17 @@ class _DashboardPageState extends State<DashboardPage> {
 
   Widget _buildDrawer() {
     return Drawer(
-      backgroundColor: surfaceColor,
+      backgroundColor: AppColors.surface,
       child: Column(
         children: [
           DrawerHeader(
             decoration: BoxDecoration(
               // Color.withOpacity n'est pas déprécié.
-              color: primaryBlue.withOpacity(0.1),
+              color:  AppColors.primary.withOpacity(0.1),
             ),
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
             child: Row(
               children: [
-                // Logo TODO dans le Drawer - Le SVG s'affichera avec ses couleurs internes.
                 SvgPicture.asset(
                   'assets/images/Logo_ToDo.svg', // Assurez-vous que ce chemin est correct
                   height: 40,
@@ -670,11 +643,11 @@ class _DashboardPageState extends State<DashboardPage> {
             child: Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: backgroundColor,
+                color: AppColors.surface,
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(
                   // Color.withOpacity n'est pas déprécié.
-                  color: primaryBlue.withOpacity(0.2),
+                  color: AppColors.primary.withOpacity(0.2),
                   width: 1,
                 ),
               ),
@@ -683,10 +656,10 @@ class _DashboardPageState extends State<DashboardPage> {
                   CircleAvatar(
                     radius: 20,
                     // Color.withOpacity n'est pas déprécié.
-                    backgroundColor: primaryBlue.withOpacity(0.15),
+                    backgroundColor: AppColors.primary.withOpacity(0.15),
                     child: Icon(
                       Icons.person_outline,
-                      color: primaryBlue,
+                      color: AppColors.primary,
                       size: 20,
                     ),
                   ),
@@ -698,7 +671,7 @@ class _DashboardPageState extends State<DashboardPage> {
                         Text(
                           _currentUserProfile?['username'] ?? 'Utilisateur',
                           style: TextStyle(
-                            color: textDark,
+                            color: AppColors.textDark,
                             fontSize: 14,
                             fontWeight: FontWeight.w600,
                           ),
@@ -708,7 +681,7 @@ class _DashboardPageState extends State<DashboardPage> {
                           _currentUserProfile?['email'] ?? 'En ligne',
                           style: TextStyle(
                             // Color.withOpacity n'est pas déprécié.
-                            color: textGrey.withOpacity(0.8),
+                            color: AppColors.textGrey.withOpacity(0.8),
                             fontSize: 12,
                           ),
                         ),
@@ -718,7 +691,7 @@ class _DashboardPageState extends State<DashboardPage> {
                   // Color.withOpacity n'est pas déprécié.
                   Icon(
                     Icons.more_vert,
-                    color: textGrey.withOpacity(0.7),
+                    color: AppColors.textGrey.withOpacity(0.7),
                     size: 18,
                   ),
                 ],
@@ -752,7 +725,7 @@ class _DashboardPageState extends State<DashboardPage> {
                         TextButton(
                           onPressed: () => Navigator.pop(context, true),
                           style: TextButton.styleFrom(
-                            foregroundColor: errorRed,
+                            foregroundColor: AppColors.error,
                           ),
                           child: const Text('Déconnexion'),
                         ),
@@ -775,7 +748,7 @@ class _DashboardPageState extends State<DashboardPage> {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
                             content: Text('Erreur lors de la déconnexion: $e'),
-                            backgroundColor: errorRed,
+                            backgroundColor: AppColors.error,
                           ),
                         );
                       }
@@ -785,7 +758,7 @@ class _DashboardPageState extends State<DashboardPage> {
                 icon: const Icon(Icons.logout),
                 label: const Text('Se déconnecter'),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: errorRed,
+                  backgroundColor: AppColors.error,
                   foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(vertical: 12),
                   shape: RoundedRectangleBorder(
@@ -830,7 +803,7 @@ class SidebarItem extends StatelessWidget {
             decoration: BoxDecoration(
               // Color.withOpacity n'est pas déprécié.
               color: isSelected
-                  ? primaryBlue.withOpacity(0.12)
+                  ? AppColors.primary.withOpacity(0.12)
                   : Colors.transparent,
               borderRadius: BorderRadius.circular(10),
             ),
@@ -839,14 +812,14 @@ class SidebarItem extends StatelessWidget {
                 Icon(
                   icon,
                   // Color.withOpacity n'est pas déprécié.
-                  color: isSelected ? primaryBlue : textGrey.withOpacity(0.8),
+                  color: isSelected ? AppColors.primary : AppColors.textGrey.withOpacity(0.8),
                   size: 20,
                 ),
                 const SizedBox(width: 12),
                 Text(
                   title,
                   style: TextStyle(
-                    color: isSelected ? primaryBlue : textGrey,
+                    color: isSelected ? AppColors.primary : AppColors.textGrey,
                     fontSize: 14,
                     fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
                   ),
@@ -880,12 +853,12 @@ class DashboardStatsCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: surfaceColor,
+        color: AppColors.surface,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
             // Color.withOpacity n'est pas déprécié.
-            color: textDark.withOpacity(0.06),
+            color: AppColors.textDark.withOpacity(0.06),
             blurRadius: 15,
             offset: const Offset(0, 6),
           ),
@@ -914,7 +887,7 @@ class DashboardStatsCard extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 28,
                     fontWeight: FontWeight.bold,
-                    color: textDark,
+                    color: AppColors.textDark,
                     letterSpacing: -1,
                   ),
                 ),
@@ -922,7 +895,7 @@ class DashboardStatsCard extends StatelessWidget {
                 Text(
                   title,
                   style: TextStyle(
-                    color: textGrey,
+                    color: AppColors.textGrey,
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
                   ),
@@ -976,7 +949,7 @@ class KanbanColumn extends StatelessWidget {
             padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(
               // Color.withOpacity n'est pas déprécié.
-              color: surfaceColor.withOpacity(0.85),
+              color: AppColors.surface.withOpacity(0.85),
               borderRadius: const BorderRadius.only(
                 topLeft: Radius.circular(15),
                 topRight: Radius.circular(15),
@@ -990,7 +963,7 @@ class KanbanColumn extends StatelessWidget {
                   title,
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
-                    color: textDark,
+                    color: AppColors.textDark,
                     fontSize: 16,
                   ),
                 ),
@@ -1008,7 +981,7 @@ class KanbanColumn extends StatelessWidget {
                   child: Text(
                     "${filtered.length}",
                     style: TextStyle(
-                      color: textDark,
+                      color: AppColors.textDark,
                       fontWeight: FontWeight.bold,
                       fontSize: 13,
                     ),
@@ -1033,7 +1006,7 @@ class KanbanColumn extends StatelessWidget {
                         padding: const EdgeInsets.all(16.0),
                         child: Text(
                           "Aucune tâche à ${title.toLowerCase()}",
-                          style: TextStyle(color: textGrey, fontSize: 13),
+                          style: TextStyle(color: AppColors.textGrey, fontSize: 13),
                           textAlign: TextAlign.center,
                         ),
                       ),
@@ -1059,12 +1032,12 @@ class ProjectCard extends StatelessWidget {
       padding: const EdgeInsets.all(14),
       margin: const EdgeInsets.only(bottom: 10),
       decoration: BoxDecoration(
-        color: surfaceColor,
+        color: AppColors.surface,
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
             // Color.withOpacity n'est pas déprécié.
-            color: textDark.withOpacity(0.06),
+            color: AppColors.textDark.withOpacity(0.06),
             blurRadius: 10,
             offset: const Offset(0, 5),
           ),
@@ -1081,7 +1054,7 @@ class ProjectCard extends StatelessWidget {
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 14,
-                    color: textDark,
+                    color: AppColors.textDark,
                   ),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
@@ -1092,10 +1065,10 @@ class ProjectCard extends StatelessWidget {
                 padding: const EdgeInsets.all(6),
                 decoration: BoxDecoration(
                   // Color.withOpacity n'est pas déprécié.
-                  color: primaryBlue.withOpacity(0.12),
+                  color: AppColors.primary.withOpacity(0.12),
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: Icon(Icons.more_horiz, size: 16, color: primaryBlue),
+                child: Icon(Icons.more_horiz, size: 16, color: AppColors.primary),
               ),
             ],
           ),
@@ -1103,17 +1076,17 @@ class ProjectCard extends StatelessWidget {
           Row(
             children: [
               // Color.withOpacity n'est pas déprécié.
-              Icon(
+                Icon(
                 Icons.calendar_today_outlined,
                 size: 14,
-                color: textGrey.withOpacity(0.8),
+                color: AppColors.textGrey.withOpacity(0.8),
               ),
               const SizedBox(width: 6),
               Text(
                 "Aujourd'hui", // Date dynamique à implémenter (project.dueDate)
                 style: TextStyle(
                   // Color.withOpacity n'est pas déprécié.
-                  color: textGrey.withOpacity(0.8),
+                  color: AppColors.textGrey.withOpacity(0.8),
                   fontSize: 12,
                 ),
               ),
@@ -1122,8 +1095,8 @@ class ProjectCard extends StatelessWidget {
               CircleAvatar(
                 radius: 12,
                 // Color.withOpacity n'est pas déprécié.
-                backgroundColor: primaryBlue.withOpacity(0.15),
-                child: Icon(Icons.person, size: 14, color: primaryBlue),
+                backgroundColor: AppColors.primary.withOpacity(0.15),
+                child: Icon(Icons.person, size: 14, color: AppColors.primary),
               ),
             ],
           ),
@@ -1142,12 +1115,12 @@ class DashboardCalendar extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: surfaceColor,
+        color: AppColors.surface,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
             // Color.withOpacity n'est pas déprécié.
-            color: textDark.withOpacity(0.06),
+            color: AppColors.textDark.withOpacity(0.06),
             blurRadius: 15,
             offset: const Offset(0, 6),
           ),
@@ -1158,12 +1131,12 @@ class DashboardCalendar extends StatelessWidget {
         children: [
           Row(
             children: [
-              Icon(Icons.calendar_month_outlined, color: primaryBlue, size: 24),
+              Icon(Icons.calendar_month_outlined, color: AppColors.primary, size: 24),
               const SizedBox(width: 12),
               Text(
                 "Mon Agenda", // Titre adapté
                 style: TextStyle(
-                  color: textDark,
+                  color: AppColors.textDark,
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
                 ),
@@ -1174,7 +1147,7 @@ class DashboardCalendar extends StatelessWidget {
           Center(
             child: Text(
               "Vos prochains projets et événements apparaîtront ici",
-              style: TextStyle(color: textGrey, fontSize: 14),
+              style: TextStyle(color: AppColors.textGrey, fontSize: 14),
               textAlign: TextAlign.center,
             ),
           ),

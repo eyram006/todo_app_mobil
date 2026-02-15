@@ -3,6 +3,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:todo_app/auth/pages/login.dart';
 import 'package:todo_app/auth/pages/register.dart';
+import 'package:todo_app/theme.dart';
 import 'package:todo_app/welcome.dart';
 
 import 'dashboard/pages/dashbord_page.dart';
@@ -80,7 +81,7 @@ class _MyAppState extends State<MyApp> {
         supportedLocales: const [Locale('fr', 'FR'), Locale('en', 'US')],
         home: Scaffold(
           body: Center(
-            child: CircularProgressIndicator(color: const Color(0xFF21B6EC)),
+            child: CircularProgressIndicator(color: AppColors.primary),
           ),
         ),
       );
@@ -88,6 +89,7 @@ class _MyAppState extends State<MyApp> {
 
     return MaterialApp(
       debugShowCheckedModeBanner: false,
+      theme: appThemeData(),
       locale: const Locale('fr', 'FR'),
       localizationsDelegates: const [
         GlobalMaterialLocalizations.delegate,

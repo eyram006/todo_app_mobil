@@ -1,16 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:todo_app/theme.dart';
 
 import '../models/project.dart';
 import '../services/project_service.dart';
 
-// --- Palette de couleurs "TODO" (Même que Dashboard) ---
-const Color primaryBlue = Color(0xFF21B6EC);
-const Color surfaceColor = Color(0xFFFFFFFF);
-const Color textDark = Color(0xFF161E2B);
-const Color textGrey = Color(0xFF6B7280);
-const Color backgroundColor = Color(0xFFF9FAFB);
-const Color errorRed = Color(0xFFF44336);
+// Use AppColors directly
 
 class CreateProjectPage extends StatefulWidget {
   const CreateProjectPage({super.key});
@@ -48,7 +43,7 @@ class _CreateProjectPageState extends State<CreateProjectPage> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text("Vous devez être connecté pour créer un projet."),
-            backgroundColor: errorRed,
+            backgroundColor: AppColors.error,
           ),
         );
         setState(() => _isLoading = false);
@@ -81,7 +76,7 @@ class _CreateProjectPageState extends State<CreateProjectPage> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text("Erreur lors de la création : ${e.toString()}"),
-            backgroundColor: errorRed,
+            backgroundColor: AppColors.error,
           ),
         );
       }
@@ -102,12 +97,12 @@ class _CreateProjectPageState extends State<CreateProjectPage> {
         return Theme(
           data: Theme.of(context).copyWith(
             colorScheme: const ColorScheme.light(
-              primary: primaryBlue,
+              primary: AppColors.primary,
               onPrimary: Colors.white,
-              onSurface: textDark,
+              onSurface: AppColors.textDark,
             ),
             textButtonTheme: TextButtonThemeData(
-              style: TextButton.styleFrom(foregroundColor: primaryBlue),
+              style: TextButton.styleFrom(foregroundColor: AppColors.primary),
             ),
           ),
           child: child!,
@@ -125,15 +120,18 @@ class _CreateProjectPageState extends State<CreateProjectPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: backgroundColor,
+      backgroundColor: AppColors.background,
       appBar: AppBar(
         title: const Text(
           "Nouveau Projet",
-          style: TextStyle(color: textDark, fontWeight: FontWeight.bold),
+          style: TextStyle(
+            color: AppColors.textDark,
+            fontWeight: FontWeight.bold,
+          ),
         ),
-        backgroundColor: surfaceColor,
+        backgroundColor: AppColors.surface,
         elevation: 0.5,
-        iconTheme: const IconThemeData(color: textDark),
+        iconTheme: const IconThemeData(color: AppColors.textDark),
         centerTitle: true,
       ),
       body: SingleChildScrollView(
@@ -148,13 +146,13 @@ class _CreateProjectPageState extends State<CreateProjectPage> {
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w600,
-                  color: textDark,
+                  color: AppColors.textDark,
                 ),
               ),
               const SizedBox(height: 8),
               const Text(
                 "Remplissez les informations ci-dessous pour créer votre projet.",
-                style: TextStyle(color: textGrey, fontSize: 14),
+                style: TextStyle(color: AppColors.textGrey, fontSize: 14),
               ),
               const SizedBox(height: 32),
 
@@ -192,7 +190,7 @@ class _CreateProjectPageState extends State<CreateProjectPage> {
               const SizedBox(height: 8),
               Container(
                 decoration: BoxDecoration(
-                  color: surfaceColor,
+                  color: AppColors.surface,
                   border: Border.all(color: Colors.grey.shade300),
                   borderRadius: BorderRadius.circular(12),
                 ),
@@ -201,7 +199,7 @@ class _CreateProjectPageState extends State<CreateProjectPage> {
                   decoration: InputDecoration(
                     hintText: "Choisissez le statut de départ",
                     hintStyle: TextStyle(
-                      color: textGrey.withValues(alpha: 0.5),
+                      color: AppColors.textGrey.withOpacity(0.5),
                     ),
                     contentPadding: const EdgeInsets.symmetric(
                       horizontal: 16,
@@ -218,11 +216,14 @@ class _CreateProjectPageState extends State<CreateProjectPage> {
                         children: [
                           Icon(
                             Icons.assignment_outlined,
-                            color: Color(0xFF5ADFF6),
+                            color: AppColors.lightBlue,
                             size: 20,
                           ),
                           SizedBox(width: 12),
-                          Text("À faire", style: TextStyle(color: textDark)),
+                          Text(
+                            "À faire",
+                            style: TextStyle(color: AppColors.textDark),
+                          ),
                         ],
                       ),
                     ),
@@ -230,9 +231,16 @@ class _CreateProjectPageState extends State<CreateProjectPage> {
                       value: 'in progress',
                       child: Row(
                         children: [
-                          Icon(Icons.sync, color: Color(0xFFD1FAE5), size: 20),
+                          Icon(
+                            Icons.sync,
+                            color: AppColors.lightGreen,
+                            size: 20,
+                          ),
                           SizedBox(width: 12),
-                          Text("En cours", style: TextStyle(color: textDark)),
+                          Text(
+                            "En cours",
+                            style: TextStyle(color: AppColors.textDark),
+                          ),
                         ],
                       ),
                     ),
@@ -242,11 +250,14 @@ class _CreateProjectPageState extends State<CreateProjectPage> {
                         children: [
                           Icon(
                             Icons.check_circle_outline,
-                            color: Color(0xFFEDE9FE),
+                            color: AppColors.lightPurple,
                             size: 20,
                           ),
                           SizedBox(width: 12),
-                          Text("Terminé", style: TextStyle(color: textDark)),
+                          Text(
+                            "Terminé",
+                            style: TextStyle(color: AppColors.textDark),
+                          ),
                         ],
                       ),
                     ),
@@ -254,10 +265,16 @@ class _CreateProjectPageState extends State<CreateProjectPage> {
                   onChanged: (value) {
                     if (value != null) setState(() => _selectedStatus = value);
                   },
-                  icon: const Icon(Icons.keyboard_arrow_down, color: textGrey),
-                  dropdownColor: surfaceColor,
+                  icon: const Icon(
+                    Icons.keyboard_arrow_down,
+                    color: AppColors.textGrey,
+                  ),
+                  dropdownColor: AppColors.surface,
                   borderRadius: BorderRadius.circular(12),
-                  style: const TextStyle(color: textDark, fontSize: 16),
+                  style: const TextStyle(
+                    color: AppColors.textDark,
+                    fontSize: 16,
+                  ),
                 ),
               ),
 
@@ -275,7 +292,7 @@ class _CreateProjectPageState extends State<CreateProjectPage> {
                     vertical: 16,
                   ),
                   decoration: BoxDecoration(
-                    color: surfaceColor,
+                    color: AppColors.surface,
                     border: Border.all(color: Colors.grey.shade300),
                     borderRadius: BorderRadius.circular(12),
                   ),
@@ -284,8 +301,8 @@ class _CreateProjectPageState extends State<CreateProjectPage> {
                       Icon(
                         Icons.calendar_month_outlined,
                         color: _selectedDeadline != null
-                            ? primaryBlue
-                            : textGrey,
+                            ? AppColors.primary
+                            : AppColors.textGrey,
                         size: 20,
                       ),
                       const SizedBox(width: 12),
@@ -296,8 +313,8 @@ class _CreateProjectPageState extends State<CreateProjectPage> {
                               : "${_selectedDeadline!.day.toString().padLeft(2, '0')}/${_selectedDeadline!.month.toString().padLeft(2, '0')}/${_selectedDeadline!.year}",
                           style: TextStyle(
                             color: _selectedDeadline == null
-                                ? textGrey.withValues(alpha: 0.5)
-                                : textDark,
+                              ? AppColors.textGrey.withOpacity(0.5)
+                              : AppColors.textDark,
                             fontSize: 16,
                           ),
                         ),
@@ -307,14 +324,14 @@ class _CreateProjectPageState extends State<CreateProjectPage> {
                           onTap: () => setState(() => _selectedDeadline = null),
                           child: const Icon(
                             Icons.close,
-                            color: textGrey,
+                            color: AppColors.textGrey,
                             size: 20,
                           ),
                         )
                       else
                         const Icon(
                           Icons.keyboard_arrow_down,
-                          color: textGrey,
+                          color: AppColors.textGrey,
                           size: 24,
                         ),
                     ],
@@ -331,7 +348,7 @@ class _CreateProjectPageState extends State<CreateProjectPage> {
                 child: ElevatedButton(
                   onPressed: _isLoading ? null : _createProject,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: primaryBlue,
+                    backgroundColor: AppColors.primary,
                     foregroundColor: Colors.white,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
@@ -369,7 +386,7 @@ class _CreateProjectPageState extends State<CreateProjectPage> {
       style: const TextStyle(
         fontSize: 14,
         fontWeight: FontWeight.w600,
-        color: textDark,
+        color: AppColors.textDark,
       ),
     );
   }
@@ -377,9 +394,9 @@ class _CreateProjectPageState extends State<CreateProjectPage> {
   InputDecoration _inputDecoration(String hint) {
     return InputDecoration(
       hintText: hint,
-      hintStyle: TextStyle(color: textGrey.withValues(alpha: 0.5)),
+      hintStyle: TextStyle(color: AppColors.textGrey.withValues(alpha: 0.5)),
       filled: true,
-      fillColor: surfaceColor,
+      fillColor: AppColors.surface,
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
@@ -391,7 +408,7 @@ class _CreateProjectPageState extends State<CreateProjectPage> {
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: primaryBlue, width: 2),
+        borderSide: const BorderSide(color: AppColors.primary, width: 2),
       ),
     );
   }

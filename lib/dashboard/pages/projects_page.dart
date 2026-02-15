@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import '../services/project_service.dart';
+import 'package:todo_app/theme.dart';
+
 import '../models/project.dart';
+import '../services/project_service.dart';
 
-
-const Color primaryBlue = Color(0xFF21B6EC);
-const Color textDark = Color(0xFF161E2B);
+// Use AppColors directly
 
 class ProjectsPage extends StatefulWidget {
   const ProjectsPage({super.key});
@@ -81,6 +81,7 @@ class _ProjectsPageState extends State<ProjectsPage> {
                     ),
 
                     const SizedBox(height: 12),
+
                     /// DESCRIPTION
                     TextField(
                       controller: descriptionController,
@@ -96,29 +97,26 @@ class _ProjectsPageState extends State<ProjectsPage> {
                     DropdownButtonFormField<String>(
                       value: selectedStatus,
                       items: const [
+                        DropdownMenuItem(value: 'todo', child: Text("À faire")),
                         DropdownMenuItem(
-                            value: 'todo', child: Text("À faire")),
-                        DropdownMenuItem(
-                            value: 'in_progress',
-                            child: Text("En cours")),
-                        DropdownMenuItem(
-                            value: 'done', child: Text("Terminé")),
+                          value: 'in_progress',
+                          child: Text("En cours"),
+                        ),
+                        DropdownMenuItem(value: 'done', child: Text("Terminé")),
                       ],
                       onChanged: (value) {
                         setStateDialog(() {
                           selectedStatus = value!;
                         });
                       },
-                      decoration:
-                      const InputDecoration(labelText: "Statut"),
+                      decoration: const InputDecoration(labelText: "Statut"),
                     ),
 
                     const SizedBox(height: 12),
 
                     /// DEADLINE
                     Row(
-                      mainAxisAlignment:
-                      MainAxisAlignment.spaceBetween,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
                           selectedDeadline == null
@@ -127,8 +125,7 @@ class _ProjectsPageState extends State<ProjectsPage> {
                         ),
                         TextButton(
                           onPressed: () async {
-                            final picked =
-                            await showDatePicker(
+                            final picked = await showDatePicker(
                               context: context,
                               initialDate: DateTime.now(),
                               firstDate: DateTime(2023),
@@ -142,7 +139,7 @@ class _ProjectsPageState extends State<ProjectsPage> {
                             }
                           },
                           child: const Text("Choisir date de fin"),
-                        )
+                        ),
                       ],
                     ),
                   ],
@@ -163,8 +160,7 @@ class _ProjectsPageState extends State<ProjectsPage> {
                     final newProject = Project(
                       id: '',
                       name: name,
-                      description:
-                      descriptionController.text.trim(),
+                      description: descriptionController.text.trim(),
                       status: selectedStatus,
                       deadline: selectedDeadline,
                       ownerId: user.id,
@@ -175,7 +171,9 @@ class _ProjectsPageState extends State<ProjectsPage> {
                       if (mounted) {
                         Navigator.pop(context); // Ferme la boîte de dialogue
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text("Projet créé avec succès !")),
+                          const SnackBar(
+                            content: Text("Projet créé avec succès !"),
+                          ),
                         );
                         fetchProjects(); // Rafraîchit la liste des projets
                       }
@@ -183,13 +181,17 @@ class _ProjectsPageState extends State<ProjectsPage> {
                       // Capture l'erreur et l'affiche à l'utilisateur
                       if (mounted) {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text("Erreur lors de la création du projet : ${e.toString()}")),
+                          SnackBar(
+                            content: Text(
+                              "Erreur lors de la création du projet : ${e.toString()}",
+                            ),
+                          ),
                         );
-                        }
+                      }
                     }
                   },
                   child: const Text("Créer"),
-                )
+                ),
               ],
             );
           },
@@ -197,7 +199,6 @@ class _ProjectsPageState extends State<ProjectsPage> {
       },
     );
   }
-
 
   // ===================== CREATE TASK =====================
 
@@ -213,8 +214,9 @@ class _ProjectsPageState extends State<ProjectsPage> {
         content: TextField(controller: title),
         actions: [
           TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text("Annuler")),
+            onPressed: () => Navigator.pop(context),
+            child: const Text("Annuler"),
+          ),
           ElevatedButton(
             onPressed: () async {
               await supabase.from('tasks').insert({
@@ -227,7 +229,7 @@ class _ProjectsPageState extends State<ProjectsPage> {
               fetchTasks(selectedProjectId!);
             },
             child: const Text("Créer"),
-          )
+          ),
         ],
       ),
     );
@@ -236,10 +238,7 @@ class _ProjectsPageState extends State<ProjectsPage> {
   // ===================== UPDATE STATUS =====================
 
   Future<void> updateTaskStatus(String taskId, String newStatus) async {
-    await supabase
-        .from('tasks')
-        .update({'status': newStatus})
-        .eq('id', taskId);
+    await supabase.from('tasks').update({'status': newStatus}).eq('id', taskId);
 
     fetchTasks(selectedProjectId!);
   }
@@ -267,7 +266,7 @@ class _ProjectsPageState extends State<ProjectsPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Gestion des projets"),
-        backgroundColor: primaryBlue,
+        backgroundColor: AppColors.primary,
       ),
       floatingActionButton: Column(
         mainAxisAlignment: MainAxisAlignment.end,
@@ -288,68 +287,72 @@ class _ProjectsPageState extends State<ProjectsPage> {
       body: loading
           ? const Center(child: CircularProgressIndicator())
           : Row(
-        children: [
-          // ========= PROJECTS =========
-          Expanded(
-            flex: 2,
-            child: ListView.builder(
-              itemCount: projects.length,
-              itemBuilder: (_, index) {
-                final project = projects[index];
-                return ListTile(
-                  title: Text(project['name'] ?? ''),
-                  onTap: () => fetchTasks(project['id']),
-                  trailing: IconButton(
-                    icon: const Icon(Icons.delete, color: Colors.red),
-                    onPressed: () => deleteProject(project['id']),
+              children: [
+                // ========= PROJECTS =========
+                Expanded(
+                  flex: 2,
+                  child: ListView.builder(
+                    itemCount: projects.length,
+                    itemBuilder: (_, index) {
+                      final project = projects[index];
+                      return ListTile(
+                        title: Text(project['name'] ?? ''),
+                        onTap: () => fetchTasks(project['id']),
+                        trailing: IconButton(
+                          icon: const Icon(Icons.delete, color: Colors.red),
+                          onPressed: () => deleteProject(project['id']),
+                        ),
+                      );
+                    },
                   ),
-                );
-              },
-            ),
-          ),
+                ),
 
-          // ========= TASKS =========
-          Expanded(
-            flex: 3,
-            child: selectedProjectId == null
-                ? const Center(child: Text("Sélectionnez un projet"))
-                : ListView.builder(
-              itemCount: tasks.length,
-              itemBuilder: (_, index) {
-                final task = tasks[index];
+                // ========= TASKS =========
+                Expanded(
+                  flex: 3,
+                  child: selectedProjectId == null
+                      ? const Center(child: Text("Sélectionnez un projet"))
+                      : ListView.builder(
+                          itemCount: tasks.length,
+                          itemBuilder: (_, index) {
+                            final task = tasks[index];
 
-                return Card(
-                  child: ListTile(
-                    title: Text(task['title']),
-                    subtitle: Text(task['status']),
-                    trailing: PopupMenuButton<String>(
-                      onSelected: (value) =>
-                          updateTaskStatus(task['id'], value),
-                      itemBuilder: (_) => const [
-                        PopupMenuItem(
-                            value: 'To Do',
-                            child: Text("To Do")),
-                        PopupMenuItem(
-                            value: 'In Progress',
-                            child: Text("In Progress")),
-                        PopupMenuItem(
-                            value: 'Done',
-                            child: Text("Done")),
-                      ],
-                    ),
-                    leading: IconButton(
-                      icon: const Icon(Icons.delete,
-                          color: Colors.red),
-                      onPressed: () =>
-                          deleteTask(task['id']),
-                    ),
-                  ),
-                );
-              },
+                            return Card(
+                              child: ListTile(
+                                title: Text(task['title']),
+                                subtitle: Text(task['status']),
+                                trailing: PopupMenuButton<String>(
+                                  onSelected: (value) =>
+                                      updateTaskStatus(task['id'], value),
+                                  itemBuilder: (_) => const [
+                                    PopupMenuItem(
+                                      value: 'To Do',
+                                      child: Text("To Do"),
+                                    ),
+                                    PopupMenuItem(
+                                      value: 'In Progress',
+                                      child: Text("In Progress"),
+                                    ),
+                                    PopupMenuItem(
+                                      value: 'Done',
+                                      child: Text("Done"),
+                                    ),
+                                  ],
+                                ),
+                                leading: IconButton(
+                                  icon: const Icon(
+                                    Icons.delete,
+                                    color: Colors.red,
+                                  ),
+                                  onPressed: () => deleteTask(task['id']),
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                ),
+              ],
             ),
-          ),
-        ],
-      ),
     );
   }
 }

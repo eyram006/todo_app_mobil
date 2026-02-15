@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:todo_app/theme.dart';
 
 class MemberDetailsPage extends StatelessWidget {
   final String name;
@@ -29,24 +30,24 @@ class MemberDetailsPage extends StatelessWidget {
         : 0;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FA),
+      backgroundColor: AppColors.background,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.surface,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Color(0xFF2C3E50)),
+          icon: const Icon(Icons.arrow_back, color: AppColors.textDark),
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: Text(
           "Profil du membre",
           style: TextStyle(
-            color: const Color(0xFF2C3E50),
+            color: AppColors.textDark,
             fontWeight: FontWeight.w600,
           ),
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.more_vert, color: Color(0xFF2C3E50)),
+            icon: const Icon(Icons.more_vert, color: AppColors.textDark),
             onPressed: () {
               // TODO: Menu d'options (modifier, supprimer, etc.)
             },
@@ -80,16 +81,13 @@ class MemberDetailsPage extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
-                      color: const Color(0xFF2C3E50),
+                      color: AppColors.textDark,
                     ),
                   ),
                   const SizedBox(height: 4),
                   Text(
                     email,
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: const Color(0xFF6C757D),
-                    ),
+                    style: TextStyle(fontSize: 16, color: AppColors.textGrey),
                   ),
                   const SizedBox(height: 8),
                   Container(
