@@ -31,6 +31,13 @@ class TaskService {
         .eq('id', taskId);
   }
 
+  Future<void> assignTask(String taskId, String? userId) async {
+    await _supabase
+        .from('tasks')
+        .update({'assigned_to': userId})
+        .eq('id', taskId);
+  }
+
   Future<void> deleteTask(String taskId) async {
     await _supabase.from('tasks').delete().eq('id', taskId);
   }

@@ -58,6 +58,30 @@ class Task {
       'attachments': attachments,
     };
   }
+
+  Task copyWith({
+    String? id,
+    String? projectId,
+    String? title,
+    String? status,
+    String? assignedTo,
+    DateTime? dueDate,
+    List<SubTask>? subTasks,
+    List<Comment>? comments,
+    List<String>? attachments,
+  }) {
+    return Task(
+      id: id ?? this.id,
+      projectId: projectId ?? this.projectId,
+      title: title ?? this.title,
+      status: status ?? this.status,
+      assignedTo: assignedTo ?? this.assignedTo,
+      dueDate: dueDate ?? this.dueDate,
+      subTasks: subTasks ?? this.subTasks,
+      comments: comments ?? this.comments,
+      attachments: attachments ?? this.attachments,
+    );
+  }
 }
 
 class SubTask {

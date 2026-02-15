@@ -1,9 +1,11 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:todo_app/auth/pages/login.dart';
 import 'package:todo_app/auth/pages/register.dart';
+import 'package:todo_app/core/app_state.dart';
 import 'package:todo_app/dashboard/services/notification_service.dart';
 import 'package:todo_app/theme.dart';
 import 'package:todo_app/welcome.dart';
@@ -116,11 +118,17 @@ class _MyAppState extends State<MyApp> {
         GlobalCupertinoLocalizations.delegate,
       ],
       supportedLocales: const [Locale('fr', 'FR'), Locale('en', 'US')],
-      home: _initialScreen,
+      home: ChangeNotifierProvider(
+        create: (context) => AppState(),
+        child: _initialScreen,
+      ),
       routes: {
         '/register': (context) => const RegisterPage(),
         '/login': (context) => const LoginPage(),
-        '/dashboard': (context) => const DashboardPage(),
+        '/dashboard': (context) => ChangeNotifierProvider(
+          create: (context) => AppState(),
+          child: const DashboardPage(),
+        ),
         '/welcome': (context) => Welcome(),
       },
     );

@@ -20,11 +20,28 @@ class _TaskDetailsPageState extends State<TaskDetailsPage> {
   final FileService _fileService = FileService();
   late Task _task;
   final TextEditingController _commentController = TextEditingController();
+  List<String> _projectMembers = [];
 
   @override
   void initState() {
     super.initState();
     _task = widget.task;
+    _loadProjectMembers();
+  }
+
+  Future<void> _loadProjectMembers() async {
+    try {
+      final project = await Supabase.instance.client
+          .from('projects')
+          .select('member_ids')
+          .eq('id', _task.projectId)
+          .single();
+      setState(() {
+        _projectMembers = List<String>.from(project['member_ids'] ?? []);
+      });
+    } catch (e) {
+      debugPrint('Erreur chargement membres: $e');
+    }
   }
 
   Future<void> _addComment() async {
@@ -109,24 +126,19 @@ class _TaskDetailsPageState extends State<TaskDetailsPage> {
     }
   }
 
-  Future<void> _toggleSubTask(String subTaskId) async {
-    final index = _task.subTasks.indexWhere((st) => st.id == subTaskId);
-    if (index != -1) {
-      final subTask = _task.subTasks[index];
-      final updatedSubTask = SubTask(
-        id: subTask.id,
-        title: subTask.title,
-        isCompleted: !subTask.isCompleted,
-      );
-      _task.subTasks[index] = updatedSubTask;
-      try {
-        await _taskService.updateTask(_task);
-        setState(() {});
-      } catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Erreur mise à jour sous-tâche')),
-        );
-      }
+  Future<void> _assignTask(String? userId) async {
+    try {
+      await _taskService.assignTask(_task.id, userId);
+      setState(() {
+        _task = _task.copyWith(assignedTo: userId);
+      });
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Tâche assignée')));
+    } catch (e) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Erreur assignation tâche')));
     }
   }
 
@@ -159,6 +171,43 @@ class _TaskDetailsPageState extends State<TaskDetailsPage> {
                   fontWeight: FontWeight.w500,
                 ),
               ),
+            ),
+            const SizedBox(height: 16),
+
+            // Assignation
+            Text(
+              'Assignée à',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: AppColors.textDark,
+              ),
+            ),
+            const SizedBox(height: 8),
+            DropdownButtonFormField<String?>(
+              value: _task.assignedTo,
+              decoration: InputDecoration(
+                filled: true,
+                fillColor: AppColors.surface,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide.none,
+                ),
+              ),
+              hint: const Text('Sélectionner un membre'),
+              items: [
+                const DropdownMenuItem<String?>(
+                  value: null,
+                  child: Text('Non assignée'),
+                ),
+                ..._projectMembers.map(
+                  (memberId) => DropdownMenuItem<String?>(
+                    value: memberId,
+                    child: Text('Membre $memberId'), // TODO: Afficher le nom
+                  ),
+                ),
+              ],
+              onChanged: _assignTask,
             ),
             const SizedBox(height: 16),
 
@@ -249,6 +298,23 @@ class _TaskDetailsPageState extends State<TaskDetailsPage> {
         ),
       ),
     );
+  }
+
+  void _toggleSubTask(String subTaskId) {
+    setState(() {
+      final updatedSubTasks = _task.subTasks.map((subTask) {
+        if (subTask.id == subTaskId) {
+          return SubTask(
+            id: subTask.id,
+            title: subTask.title,
+            isCompleted: !subTask.isCompleted,
+          );
+        }
+        return subTask;
+      }).toList();
+
+      _task = _task.copyWith(subTasks: updatedSubTasks);
+    });
   }
 
   Color _getStatusColor(String status) {
