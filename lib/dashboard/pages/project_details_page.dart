@@ -66,11 +66,16 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage> {
               if (title.isEmpty) return;
 
               try {
-                // Assuming 'todo' is default status
-                await _taskService.createTask(title, widget.project.id, 'todo');
+                // Assuming 'To Do' is default status
+                await _taskService.createTask(
+                  title,
+                  widget.project.id,
+                  'To Do',
+                );
                 if (mounted) Navigator.pop(context);
                 _loadTasks();
               } catch (e) {
+                debugPrint('Erreur création tâche: $e');
                 if (mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(content: Text('Erreur création tâche')),
@@ -86,12 +91,12 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage> {
   }
 
   Future<void> _updateTaskStatus(Task task) async {
-    // Simple toggle logic: todo -> in_progress -> done -> todo
-    String newStatus = 'todo';
-    if (task.status == 'todo')
-      newStatus = 'in_progress';
-    else if (task.status == 'in_progress')
-      newStatus = 'done';
+    // Simple toggle logic: To Do -> In Progress -> Done -> To Do
+    String newStatus = 'To Do';
+    if (task.status == 'To Do')
+      newStatus = 'In Progress';
+    else if (task.status == 'In Progress')
+      newStatus = 'Done';
 
     try {
       await _taskService.updateTaskStatus(task.id, newStatus);
@@ -161,9 +166,9 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage> {
                 final status = task.status;
 
                 Color statusColor = AppColors.textGrey;
-                if (status == 'todo') statusColor = Colors.orange;
-                if (status == 'in_progress') statusColor = Colors.blue;
-                if (status == 'done') statusColor = AppColors.success;
+                if (status == 'To Do') statusColor = Colors.orange;
+                if (status == 'In Progress') statusColor = Colors.blue;
+                if (status == 'Done') statusColor = AppColors.success;
 
                 return Card(
                   elevation: 0,
@@ -179,7 +184,7 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage> {
                     leading: CircleAvatar(
                       backgroundColor: statusColor.withValues(alpha: 0.1),
                       child: Icon(
-                        status == 'done' ? Icons.check : Icons.circle,
+                        status == 'Done' ? Icons.check : Icons.circle,
                         color: statusColor,
                         size: 18,
                       ),
@@ -187,7 +192,7 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage> {
                     title: Text(
                       task.title,
                       style: TextStyle(
-                        decoration: status == 'done'
+                        decoration: status == 'Done'
                             ? TextDecoration.lineThrough
                             : null,
                         color: status == 'done'

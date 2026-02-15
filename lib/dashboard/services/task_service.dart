@@ -20,8 +20,7 @@ class TaskService {
     await _supabase.from('tasks').insert({
       'title': title,
       'project_id': projectId,
-      'status': status,
-      'created_at': DateTime.now().toIso8601String(),
+      'status': 'To Do',
     });
   }
 

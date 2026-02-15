@@ -20,7 +20,7 @@ class _ProjectsPageState extends State<ProjectsPage> {
   final SupabaseClient supabase = Supabase.instance.client;
   final ProjectService _projectService = ProjectService();
 
-  List<dynamic> projects = [];
+  List<Project> projects = [];
   bool loading = true;
 
   @override
@@ -238,9 +238,7 @@ class _ProjectsPageState extends State<ProjectsPage> {
       padding: const EdgeInsets.all(16),
       itemCount: projects.length,
       itemBuilder: (context, index) {
-        final project = Project.fromJson(
-          projects[index] as Map<String, dynamic>,
-        );
+        final project = projects[index];
         return GestureDetector(
           onTap: () {
             Navigator.push(
