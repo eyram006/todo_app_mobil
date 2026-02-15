@@ -29,13 +29,20 @@ class Project {
   }
 
   Map<String, dynamic> toJson() {
-    return {
-      'id': id,
+    final map = <String, dynamic>{
       'name': name,
       'description': description,
       'status': status,
       'deadline': deadline?.toIso8601String(),
       'owner_id': ownerId,
     };
+
+    // If an ID was provided (e.g. for updates), include it.
+    // For new records, keep it out so the database can generate a UUID.
+    if (id.isNotEmpty) {
+      map['id'] = id;
+    }
+
+    return map;
   }
 }
