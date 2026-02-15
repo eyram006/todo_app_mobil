@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "588195192526",
+    "project_id": "mediblock-49acd",
+    "storage_bucket": "mediblock-49acd.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:588195192526:android:4a44527242f43491fbba9f",
+        "android_client_info": {
+          "package_name": "com.example.mediblock"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDA1CtolZzOG70WVIcTxrNYDpHR0PgpBp0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

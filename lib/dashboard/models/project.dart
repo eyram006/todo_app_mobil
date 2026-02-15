@@ -5,6 +5,7 @@ class Project {
   final String status; // todo | in_progress | done
   final DateTime? deadline;
   final String ownerId;
+  final List<String> memberIds; // IDs des membres
 
   Project({
     required this.id,
@@ -13,6 +14,7 @@ class Project {
     required this.status,
     this.deadline,
     required this.ownerId,
+    this.memberIds = const [],
   });
 
   factory Project.fromJson(Map<String, dynamic> json) {
@@ -25,6 +27,7 @@ class Project {
           ? DateTime.parse(json['deadline'])
           : null,
       ownerId: json['owner_id'],
+      memberIds: List<String>.from(json['member_ids'] ?? []),
     );
   }
 
@@ -35,6 +38,7 @@ class Project {
       'status': status,
       'deadline': deadline?.toIso8601String(),
       'owner_id': ownerId,
+      'member_ids': memberIds,
     };
 
     // If an ID was provided (e.g. for updates), include it.

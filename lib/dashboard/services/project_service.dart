@@ -10,9 +10,7 @@ class ProjectService {
         .select()
         .eq('owner_id', userId);
 
-    return (response as List)
-        .map((json) => Project.fromJson(json))
-        .toList();
+    return (response as List).map((json) => Project.fromJson(json)).toList();
   }
 
   Future<Project> getProject(String projectId) async {
@@ -28,15 +26,10 @@ class ProjectService {
   }
 
   Future<void> createProject(Project project) async {
-    await _supabase
-        .from('projects')
-        .insert(project.toJson());
+    await _supabase.from('projects').insert(project.toJson());
   }
 
   Future<void> deleteProject(String projectId) async {
-    await _supabase
-        .from('projects')
-        .delete()
-        .eq('id', projectId);
+    await _supabase.from('projects').delete().eq('id', projectId);
   }
 }

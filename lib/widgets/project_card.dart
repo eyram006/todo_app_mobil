@@ -76,12 +76,59 @@ class ProjectCard extends StatelessWidget {
                 ),
               ),
               const Spacer(),
-              // TODO: Afficher les avatars des membres assignés
-              CircleAvatar(
-                radius: 12,
-                // Color.withOpacity n'est pas déprécié.
-                backgroundColor: AppColors.primary.withOpacity(0.15),
-                child: Icon(Icons.person, size: 14, color: AppColors.primary),
+              // Afficher les avatars des membres assignés
+              Row(
+                children: [
+                  if (project.memberIds.isNotEmpty) ...[
+                    // Afficher jusqu'à 3 avatars
+                    for (
+                      int i = 0;
+                      i < project.memberIds.length && i < 3;
+                      i++
+                    ) ...[
+                      CircleAvatar(
+                        radius: 12,
+                        backgroundColor: AppColors.primary.withOpacity(0.15),
+                        child: Text(
+                          project.memberIds[i].substring(0, 1).toUpperCase(),
+                          style: TextStyle(
+                            fontSize: 10,
+                            color: AppColors.primary,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                      if (i < project.memberIds.length - 1 && i < 2)
+                        const SizedBox(width: 4),
+                    ],
+                    // Si plus de 3 membres, afficher un indicateur
+                    if (project.memberIds.length > 3) ...[
+                      const SizedBox(width: 4),
+                      CircleAvatar(
+                        radius: 12,
+                        backgroundColor: AppColors.textGrey.withOpacity(0.2),
+                        child: Text(
+                          '+${project.memberIds.length - 3}',
+                          style: TextStyle(
+                            fontSize: 10,
+                            color: AppColors.textGrey,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ] else ...[
+                    CircleAvatar(
+                      radius: 12,
+                      backgroundColor: AppColors.primary.withOpacity(0.15),
+                      child: Icon(
+                        Icons.person,
+                        size: 14,
+                        color: AppColors.primary,
+                      ),
+                    ),
+                  ],
+                ],
               ),
             ],
           ),

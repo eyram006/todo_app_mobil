@@ -1,4 +1,5 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
+
 import '../models/profile.dart';
 
 class AuthService {
@@ -10,6 +11,7 @@ class AuthService {
     required String username,
     required String phone,
     required String? country,
+    String role = 'member',
   }) async {
     // 1️⃣ Création utilisateur auth
     final response = await _supabase.auth.signUp(
@@ -29,18 +31,14 @@ class AuthService {
       username: username,
       phone: phone,
       country: country,
+      role: role,
     );
 
-    await _supabase
-        .from('profiles')
-        .insert(profile.toJson());
+    await _supabase.from('profiles').insert(profile.toJson());
   }
 
   Future<void> login(String email, String password) async {
-    await _supabase.auth.signInWithPassword(
-      email: email,
-      password: password,
-    );
+    await _supabase.auth.signInWithPassword(email: email, password: password);
   }
 
   Future<void> logout() async {

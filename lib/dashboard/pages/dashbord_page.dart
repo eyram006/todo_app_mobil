@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart'; // Importation nécessaire pour SvgPicture
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:todo_app/dashboard/pages/create_project_page.dart';
+import 'package:todo_app/dashboard/pages/profile_page.dart';
 import 'package:todo_app/dashboard/pages/projects_page.dart';
+import 'package:todo_app/dashboard/pages/statistics_page.dart';
 import 'package:todo_app/theme.dart';
 import 'package:todo_app/widgets/dashboard_calendar.dart';
 import 'package:todo_app/widgets/dashboard_stats_card.dart';
@@ -643,6 +645,12 @@ class _DashboardPageState extends State<DashboardPage> {
                   onTap: () {
                     setState(() => _selectedIndex = 4);
                     Navigator.pop(context);
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const StatisticsPage(),
+                      ),
+                    );
                   },
                 ),
                 SidebarItem(
@@ -660,61 +668,70 @@ class _DashboardPageState extends State<DashboardPage> {
           // Carte profil utilisateur en bas du Drawer
           Padding(
             padding: const EdgeInsets.all(16),
-            child: Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: AppColors.surface,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(
-                  // Color.withOpacity n'est pas déprécié.
-                  color: AppColors.primary.withOpacity(0.2),
-                  width: 1,
-                ),
-              ),
-              child: Row(
-                children: [
-                  CircleAvatar(
-                    radius: 20,
+            child: GestureDetector(
+              onTap: () {
+                Navigator.pop(context); // ferme le drawer
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const ProfilePage()),
+                );
+              },
+              child: Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: AppColors.surface,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
                     // Color.withOpacity n'est pas déprécié.
-                    backgroundColor: AppColors.primary.withOpacity(0.15),
-                    child: Icon(
-                      Icons.person_outline,
-                      color: AppColors.primary,
-                      size: 20,
+                    color: AppColors.primary.withOpacity(0.2),
+                    width: 1,
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    CircleAvatar(
+                      radius: 20,
+                      // Color.withOpacity n'est pas déprécié.
+                      backgroundColor: AppColors.primary.withOpacity(0.15),
+                      child: Icon(
+                        Icons.person_outline,
+                        color: AppColors.primary,
+                        size: 20,
+                      ),
                     ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          _currentUserProfile?['username'] ?? 'Utilisateur',
-                          style: TextStyle(
-                            color: AppColors.textDark,
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            _currentUserProfile?['username'] ?? 'Utilisateur',
+                            style: TextStyle(
+                              color: AppColors.textDark,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
-                        ),
-                        const SizedBox(height: 2),
-                        Text(
-                          _currentUserProfile?['email'] ?? 'En ligne',
-                          style: TextStyle(
-                            // Color.withOpacity n'est pas déprécié.
-                            color: AppColors.textGrey.withOpacity(0.8),
-                            fontSize: 12,
+                          const SizedBox(height: 2),
+                          Text(
+                            _currentUserProfile?['email'] ?? 'En ligne',
+                            style: TextStyle(
+                              // Color.withOpacity n'est pas déprécié.
+                              color: AppColors.textGrey.withOpacity(0.8),
+                              fontSize: 12,
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                  ),
-                  // Color.withOpacity n'est pas déprécié.
-                  Icon(
-                    Icons.more_vert,
-                    color: AppColors.textGrey.withOpacity(0.7),
-                    size: 18,
-                  ),
-                ],
+                    // Color.withOpacity n'est pas déprécié.
+                    Icon(
+                      Icons.more_vert,
+                      color: AppColors.textGrey.withOpacity(0.7),
+                      size: 18,
+                    ),
+                  ],
+                ),
               ),
             ),
           ),

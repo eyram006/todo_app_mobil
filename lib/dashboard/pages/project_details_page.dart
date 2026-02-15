@@ -93,9 +93,9 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage> {
   Future<void> _updateTaskStatus(Task task) async {
     // Simple toggle logic: To Do -> In Progress -> Done -> To Do
     String newStatus = 'To Do';
-    if (task.status == 'To Do')
+    if (task.status == 'To Do') {
       newStatus = 'In Progress';
-    else if (task.status == 'In Progress')
+    } else if (task.status == 'In Progress')
       newStatus = 'Done';
 
     try {

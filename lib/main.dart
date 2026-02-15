@@ -1,8 +1,10 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:todo_app/auth/pages/login.dart';
 import 'package:todo_app/auth/pages/register.dart';
+import 'package:todo_app/dashboard/services/notification_service.dart';
 import 'package:todo_app/theme.dart';
 import 'package:todo_app/welcome.dart';
 
@@ -11,16 +13,33 @@ import 'dashboard/pages/dashbord_page.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
+  await Firebase.initializeApp(
+    options: const FirebaseOptions(
+      apiKey: 'AIzaSyDA1CtolZzOG70WVIcTxrNYDpHR0PgpBp0',
+      appId: '1:588195192526:android:4a44527242f43491fbba9f',
+      messagingSenderId: '588195192526',
+      projectId: 'mediblock-49acd',
+      storageBucket: 'mediblock-49acd.firebasestorage.app',
+    ),
+  );
+
   await Supabase.initialize(
     url: 'https://rvyxffaeohfznduophya.supabase.co',
     anonKey:
         'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ2eXhmZmFlb2hmem5kdW9waHlhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA2NDg3NDUsImV4cCI6MjA4NjIyNDc0NX0.o8wIKgk172F9mQRJc_HsJU-5oLVkQI2IchcH3B7TZCs',
   );
-  runApp(const MyApp());
+
+  // Initialiser les notifications
+  final notificationService = NotificationService();
+  await notificationService.initialize();
+
+  runApp(MyApp(notificationService: notificationService));
 }
 
 class MyApp extends StatefulWidget {
-  const MyApp({super.key});
+  const MyApp({super.key, required this.notificationService});
+
+  final NotificationService notificationService;
 
   @override
   State<MyApp> createState() => _MyAppState();

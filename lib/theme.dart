@@ -4,6 +4,7 @@ class AppColors {
   AppColors._();
 
   static const Color primary = Color(0xFF21B6EC);
+  static const Color secondary = Color(0xFF6366F1);
   static const Color lightBlue = Color(0xFF5ADFF6);
   static const Color lightGreen = Color(0xFFD1FAE5);
   static const Color lightPurple = Color(0xFFEDE9FE);
@@ -29,7 +30,6 @@ ThemeData appThemeData() {
   return base.copyWith(
     colorScheme: base.colorScheme.copyWith(
       primary: AppColors.primary,
-      background: AppColors.background,
       surface: AppColors.surface,
       error: AppColors.error,
     ),

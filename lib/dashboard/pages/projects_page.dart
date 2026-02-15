@@ -90,7 +90,7 @@ class _ProjectsPageState extends State<ProjectsPage> {
                   ),
                   const SizedBox(height: 12),
                   DropdownButtonFormField<String>(
-                    value: selectedStatus,
+                    initialValue: selectedStatus,
                     decoration: const InputDecoration(
                       labelText: "Statut",
                       border: OutlineInputBorder(),
@@ -104,8 +104,9 @@ class _ProjectsPageState extends State<ProjectsPage> {
                       DropdownMenuItem(value: 'done', child: Text("Terminé")),
                     ],
                     onChanged: (val) {
-                      if (val != null)
+                      if (val != null) {
                         setStateDialog(() => selectedStatus = val);
+                      }
                     },
                   ),
                   const SizedBox(height: 12),
