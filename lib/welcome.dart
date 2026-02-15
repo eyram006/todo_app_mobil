@@ -113,8 +113,7 @@ class _FeatureCard extends StatelessWidget {
     required this.icon,
     required this.title,
     required this.description,
-    super.key,
-  });
+  }) : super();
 
   @override
   Widget build(BuildContext context) {

@@ -313,8 +313,8 @@ class _CreateProjectPageState extends State<CreateProjectPage> {
                               : "${_selectedDeadline!.day.toString().padLeft(2, '0')}/${_selectedDeadline!.month.toString().padLeft(2, '0')}/${_selectedDeadline!.year}",
                           style: TextStyle(
                             color: _selectedDeadline == null
-                              ? AppColors.textGrey.withOpacity(0.5)
-                              : AppColors.textDark,
+                                ? AppColors.textGrey.withOpacity(0.5)
+                                : AppColors.textDark,
                             fontSize: 16,
                           ),
                         ),

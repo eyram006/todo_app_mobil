@@ -399,7 +399,10 @@ class _DashboardPageState extends State<DashboardPage> {
             decoration: BoxDecoration(
               color: AppColors.surface,
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: AppColors.primary.withOpacity(0.2), width: 1),
+              border: Border.all(
+                color: AppColors.primary.withOpacity(0.2),
+                width: 1,
+              ),
             ),
             child: Column(
               children: [
@@ -487,7 +490,7 @@ class _DashboardPageState extends State<DashboardPage> {
               child: Text(
                 name.substring(0, 1).toUpperCase(),
                 style: TextStyle(
-                      color: avatarColor,
+                  color: avatarColor,
                   fontWeight: FontWeight.bold,
                   fontSize: 18,
                 ),
@@ -507,7 +510,10 @@ class _DashboardPageState extends State<DashboardPage> {
                     ),
                   ),
                   const SizedBox(height: 2),
-                  Text(email, style: TextStyle(fontSize: 14, color: AppColors.textGrey)),
+                  Text(
+                    email,
+                    style: TextStyle(fontSize: 14, color: AppColors.textGrey),
+                  ),
                   const SizedBox(height: 8),
                   Row(
                     children: [
@@ -519,7 +525,10 @@ class _DashboardPageState extends State<DashboardPage> {
                       const SizedBox(width: 4),
                       Text(
                         "$tasksAssigned tâches assignées",
-                        style: TextStyle(fontSize: 12, color: AppColors.textGrey),
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: AppColors.textGrey,
+                        ),
                       ),
                       const SizedBox(width: 12),
                       Icon(
@@ -530,14 +539,21 @@ class _DashboardPageState extends State<DashboardPage> {
                       const SizedBox(width: 4),
                       Text(
                         "$tasksCompleted terminées",
-                        style: TextStyle(fontSize: 12, color: AppColors.textGrey),
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: AppColors.textGrey,
+                        ),
                       ),
                     ],
                   ),
                 ],
               ),
             ),
-            Icon(Icons.more_vert, color: AppColors.textGrey.withOpacity(0.7), size: 20),
+            Icon(
+              Icons.more_vert,
+              color: AppColors.textGrey.withOpacity(0.7),
+              size: 20,
+            ),
           ],
         ),
       ),
@@ -552,7 +568,7 @@ class _DashboardPageState extends State<DashboardPage> {
           DrawerHeader(
             decoration: BoxDecoration(
               // Color.withOpacity n'est pas déprécié.
-              color:  AppColors.primary.withOpacity(0.1),
+              color: AppColors.primary.withOpacity(0.1),
             ),
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
             child: Row(
@@ -812,7 +828,9 @@ class SidebarItem extends StatelessWidget {
                 Icon(
                   icon,
                   // Color.withOpacity n'est pas déprécié.
-                  color: isSelected ? AppColors.primary : AppColors.textGrey.withOpacity(0.8),
+                  color: isSelected
+                      ? AppColors.primary
+                      : AppColors.textGrey.withOpacity(0.8),
                   size: 20,
                 ),
                 const SizedBox(width: 12),
@@ -1006,7 +1024,10 @@ class KanbanColumn extends StatelessWidget {
                         padding: const EdgeInsets.all(16.0),
                         child: Text(
                           "Aucune tâche à ${title.toLowerCase()}",
-                          style: TextStyle(color: AppColors.textGrey, fontSize: 13),
+                          style: TextStyle(
+                            color: AppColors.textGrey,
+                            fontSize: 13,
+                          ),
                           textAlign: TextAlign.center,
                         ),
                       ),
@@ -1068,7 +1089,11 @@ class ProjectCard extends StatelessWidget {
                   color: AppColors.primary.withOpacity(0.12),
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: Icon(Icons.more_horiz, size: 16, color: AppColors.primary),
+                child: Icon(
+                  Icons.more_horiz,
+                  size: 16,
+                  color: AppColors.primary,
+                ),
               ),
             ],
           ),
@@ -1076,7 +1101,7 @@ class ProjectCard extends StatelessWidget {
           Row(
             children: [
               // Color.withOpacity n'est pas déprécié.
-                Icon(
+              Icon(
                 Icons.calendar_today_outlined,
                 size: 14,
                 color: AppColors.textGrey.withOpacity(0.8),
@@ -1131,7 +1156,11 @@ class DashboardCalendar extends StatelessWidget {
         children: [
           Row(
             children: [
-              Icon(Icons.calendar_month_outlined, color: AppColors.primary, size: 24),
+              Icon(
+                Icons.calendar_month_outlined,
+                color: AppColors.primary,
+                size: 24,
+              ),
               const SizedBox(width: 12),
               Text(
                 "Mon Agenda", // Titre adapté
